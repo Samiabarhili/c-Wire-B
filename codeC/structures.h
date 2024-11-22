@@ -3,3 +3,5 @@ typedef struct Chainon{
   struct Chainon* précédent;
   int taille;
 }
+
+//ça marche ?
