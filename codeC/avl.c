@@ -28,7 +28,7 @@ void mettreAJourHauteur(AVL* noeud) {
     if (noeud != NULL) {
         int hauteurGauche = hauteur(noeud->gauche);
         int hauteurDroite = hauteur(noeud->droite);
-        noeud->hauteur = 1 + (hauteurGauche > hauteurDroite ? hauteurGauche : hauteurDroite);
+        noeud->hauteur = 1 + fmax(hauteurGauche, hauteurDroite);
     }
 }
 
