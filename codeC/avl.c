@@ -2,13 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-typedef struct AVL {
-    int valeur;                  // Valeur stockée dans le nœud
-    int hauteur;                 // Hauteur du nœud
-    struct AVL* gauche;          // Sous-arbre gauche
-    struct AVL* droite;          // Sous-arbre droit
-} AVL;
-
 int hauteur(AVL* noeud) {
     if (noeud == NULL) {
         return -1;   
