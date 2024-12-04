@@ -64,4 +64,6 @@ if [ -e "$input_file" ]; then
 else
     echo "- Le fichier '$input_file' n'existe pas."
     exit 1
-fi#!/bin/bash
+fi
+
+#!/bin/bash
