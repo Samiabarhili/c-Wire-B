@@ -1,6 +1,8 @@
+#!/bin/bash
+
 # Affichage de l'aide
 for arg in "$@"; do
-    if [ "$arg" = "-h" ]; then
+    if [ "$arg" == "-h" ]; then
         echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
         echo "Description: Ce script permet de traiter des données de consommation énergétique."
         echo "Paramètres:"
@@ -14,35 +16,45 @@ for arg in "$@"; do
     fi
 done
 
+
+# Fonction pour vérifier et ajuster les permissions du fichier
+adjust_file_permissions() {
+    if [ ! -r "$1" ]; then
+        echo "Ajustement des permissions de lecture pour le fichier : $1"
+        chmod +r "$1"
+    fi
+
+    if [ ! -w "$1" ] && [ -f "$1" ]; then
+        echo "Ajustement des permissions d'écriture pour le fichier : $1"
+        chmod +w "$1"
+    fi
+}
+
 # Vérification des arguments passés
 check_arguments() {
-    echo "arg : $@"
-    if [ $# -lt 3 ]; then # Si le nombre d'arguments est inférieur à 3 (lt : less than)
+    if [ $# -lt 3 ]; then # Si le nombre d'arguments est inférieur à 3
         echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
+        echo "Time : 0.0sec"
         exit 1
     fi
-
-    # Vérification du type de station
     if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then
-        echo "Erreur : Le type de station doit être 'hva', 'hvb' ou 'lv'."
+        echo "Erreur : Le type de station doit être 'hva' ou 'hvb' ou 'lv' ."
+        echo "Time : 0.0sec"
         exit 1
     fi
-
-    # Vérification du type de consommateur
     if [ "$3" != "comp" ] && [ "$3" != "indiv" ] && [ "$3" != "all" ]; then
-        echo "Erreur : Le type de consommateur doit être 'comp', 'indiv' ou 'all'."
+        echo "Erreur : Le type de consommateur doit être 'comp' ou 'indiv' ou 'all'."
+        echo "Time : 0.0sec"
         exit 1
     fi
-
-    # Vérification des combinaisons interdites
-    if ([ "$2" = "hvb" ] || [ "$2" = "hva" ]) && ([ "$3" = "all" ] || [ "$3" = "indiv" ]); then
-        echo "Erreur : Les combinaisons suivantes sont interdites : hvb all, hvb indiv, hva all, hva indiv."
+    if { [ "$2" == "hvb" ] || [ "$2" == "hva" ]; } && { [ "$3" == "all" ] || [ "$3" == "indiv" ]; }; then
+        echo "Erreur : Les options suivantes sont interdites : hvb all, hvb indiv, hva all, hva indiv."
+        echo "Time : 0.0sec"
         exit 1
     fi
-
-    # Vérification de l'identifiant de centrale
-    if ! [[ "$4" =~ ^[1-5]$ ]] && [ -n "$4" ]; then
-        echo "Erreur : L'identifiant de la centrale doit être au choix 1,2,3,4 ou 5."
+    if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then
+        echo "Erreur : L'identifiant de la centrale doit être un nombre entre 1,2,3,4 et 5."
+        echo "Time : 0.0sec"
         exit 1
     fi
 }
@@ -50,7 +62,7 @@ check_arguments() {
 INPUT_FILE=$1
 STATION_TYPE=$2
 CONSUMER_TYPE=$3
-CENTRAL_ID=${4:-"*"}
+CENTRAL_ID=${4:-"[^-]+"}
 
 # Vérification si le fichier CSV existe et n'est pas vide
 check_file() {
@@ -61,160 +73,213 @@ check_file() {
         echo "Erreur : Le fichier '$INPUT_FILE' est vide."
         exit 1
     fi
-    echo "- Le fichier '$INPUT_FILE' existe."
-    echo "  * C'est un fichier ordinaire."
-    echo "  * Il est lisible."
-    echo "  * Il est modifiable."
 }
 
-# Création des dossiers nécessaires pour le script s'ils n'existent pas
-create_directories() {
+adjust_file_permissions "$INPUT_FILE"
+
+# Création des dossiers nécessaires pour le script et suppresion
+check_directories() {
+    rm -rf "./tmp/"
     for directory in "tmp" "tests" "graphs"; do
         if [ ! -d "$directory" ]; then
             mkdir "$directory"
-            echo "Répertoire '$directory' créé."
         fi
     done
 }
 
 # Vérification de l'exécutable du programme C
 executable_verification() {
-    if [ ! -f codeC/program ]; then   #si le code c n'existe pas, pas encore compilé
+    if [ ! -f ./CodeC/program ]; then
         echo "Compilation en cours..."
-        make -C codeC || { echo "Erreur de compilation"; exit 1; }    #si la compilation a échoué, message d'erreur.
+        make -C CodeC || { echo "Erreur de compilation"; exit 1; }
     fi
 }
 
-# Exploration des données
+# PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
+# [ "$a" = "$b" ] compare character strings
+
 data_exploration() {
+    # Construction du nom du fichier de sortie
+    
     echo "Exploration des données pour le type de station : $STATION_TYPE"
 
     #fichier de sortie :
     OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
 
     #cas particulier où il y a l'ID de la centrale
-    if [ "$CENTRAL_ID" != "*" ]; then
+    if [ "$CENTRAL_ID" != "[^-]+" ]; then
+        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+    fi
+    #ajout de la première ligne du fichier de sortie
+    echo "Station $STATION_TYPE ID;Capacity(kWh);Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
+   # echo "Station ID;Capacity(kWh);Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
+
+    case "$STATION_TYPE" in
+        'hvb')
+           
+    echo "Exploration des données pour le type de station : $STATION_TYPE"
+
+    # Construction du nom du fichier de sortie
+    OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+    if [ "$CENTRAL_ID" != "[^-]+" ]; then
         OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
 
-    #ajout de la première ligne du fichier de sortie
-    echo "${STATION_TYPE} Station ID:Capacity(kWh):Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
+    # Ajout de l'en-tête au fichier de sortie
+    echo "Station $STATION_TYPE ID;Capacity(kWh);Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
 
-    case "$STATION_TYPE" in     #ATTENTION, je n'ai pas pris en compte le fait qu'il y ait des 
-     #erreurs dans le fichier d'entrée, risque d'avoir autre que des comp.
-        'hvb')
-            if [ "$CENTRAL_ID" != "*" ]; then     #cas où on étudie les HVB sur une centrale en particulier
-                grep "$CENTRAL_ID;;-;-;-;;-" "$INPUT_FILE" | awk -F ":" '$5 != "-" {print $2 ":" $7 ":" $8}' >> $OUTPUT_FILE
-                if [ -s $OUTPUT_FILE ]; then
-                    echo "Données filtrées sauvegardées dans $OUTPUT_FILE"
-                else
-                    echo "Aucune donnée trouvée pour hvb avec CENTRAL_ID=$CENTRAL_ID"
-                    exit 1
-                fi
-            else #on prend les HVB de toutes les centrales.
-                grep ";;-;-;-;;-" "$INPUT_FILE" | awk -F ":" '$5 != "-" {print $2 ":" $7 ":" $8}' >> $OUTPUT_FILE
-                if [ -s $OUTPUT_FILE ]; then
-                    echo "Données filtrées sauvegardées dans $OUTPUT_FILE"
-                else
-                    echo "Aucune donnée trouvée pour hvb avec CENTRAL_ID=$CENTRAL_ID"
-                    exit 1
-                fi
-            fi
-        ;;
+    # Extraction brute des lignes contenant la capacité
+    capacity_lines=$(grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7)
+
+    # Extraction brute des lignes contenant la consommation
+    consumption_lines=$(grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,5,8)
+
+    # Association des deux sources d'information dans une seule ligne
+    echo "$capacity_lines" | while IFS=";" read -r id capacity; do
+        # Vérification : ignorer les lignes incomplètes
+        if [ -z "$id" ] || [ -z "$capacity" ]; then
+            continue
+        fi
+
+        # Chercher la consommation correspondant à l'identifiant
+        consumption=$(echo "$consumption_lines" | grep -E "^$id;" | cut -d ";" -f3)
+        # Si aucune consommation trouvée, mettre un défaut "-"
+        consumption=${consumption:--}
+
+        # Écrire la ligne combinée dans le fichier
+        echo "$id;$capacity;$consumption" >> "$OUTPUT_FILE"
+    done
+
+    # Nettoyage et filtrage final du fichier pour s'assurer qu'il n'y a que des lignes valides
+    mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
+    awk -F";" 'NF == 3 {print $0}' "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE"
+    rm "${OUTPUT_FILE}.tmp"
+;;
+
         'hva')
-            if [ "$CENTRAL_ID" != "*" ]; then   
-                grep "$CENTRAL_ID;;;-;-;;-" "$INPUT_FILE" |  awk -F ":" '$5 != "-" {print $3 ":" $7 ":" $8}' >> $OUTPUT_FILE
-                if [ -s $OUTPUT_FILE ]; then
-                    echo "Données filtrées sauvegardées dans $OUTPUT_FILE"
-                else
-                    echo "Aucune donnée trouvée pour hva avec CENTRAL_ID=$CENTRAL_ID"
-                    exit 1
-                fi
-            else #on prend les HVA de toutes les centrales.
-                grep ";;-;-;-;;-" "$INPUT_FILE" |  awk -F ":" '$5 != "-" {print $3 ":" $7 ":" $8}' >> $OUTPUT_FILE
-                if [ -s $OUTPUT_FILE ]; then
-                    echo "Données filtrées sauvegardées dans $OUTPUT_FILE"
-                else
-                    echo "Aucune donnée trouvée pour hvb avec CENTRAL_ID=$CENTRAL_ID"
-                    exit 1
-                fi
-            fi
-        ;;
+
+    # Extraction brute des lignes contenant la capacité
+    capacity_lines=$(grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7)
+
+    # Extraction brute des lignes contenant la consommation
+    consumption_lines=$(grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,8)
+
+    # Association des deux sources d'information dans une seule ligne
+    echo "$capacity_lines" | while IFS=";" read -r id capacity; do
+        # Vérification : ignorer les lignes incomplètes
+        if [ -z "$id" ] || [ -z "$capacity" ]; then
+            continue
+        fi
+
+        # Chercher la consommation correspondant à l'identifiant
+        consumption=$(echo "$consumption_lines" | grep -E "^$id;" | cut -d ";" -f2)
+        # Si aucune consommation trouvée, mettre un défaut "-"
+        consumption=${consumption:--}
+
+        # Écrire la ligne combinée dans le fichier
+        echo "$id;$capacity;$consumption" >> "$OUTPUT_FILE"
+    done
+
+    # Nettoyage et filtrage final du fichier pour s'assurer qu'il n'y a que des lignes valides
+    mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
+    awk -F";" 'NF == 3 {print $0}' "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE"
+    rm "${OUTPUT_FILE}.tmp"
+;;
+
         'lv')
-            echo"Traitement des postes LV..."
-            if [ "$CONSUMER_TYPE" == "all" ]; then
-                if [ "$CENTRAL_ID" != "*" ]; then
-                    grep "$CENTRAL_ID" "$INPUT_FILE" | cut -d ":" -f4,7,8 >> "$OUTPUT_FILE"
-                else 
-                    grep ";;-;-;;-" "$INPUT_FILE" | cut -d ":" -f4,7,8 >> "$OUTPUT_FILE"
-                fi
+           
+    echo "Exploration des données pour le type de station : $STATION_TYPE et le type de consommateur : $CONSUMER_TYPE"
 
-                #prendre les 10 postes avec la + grande conso et les 10 avec la + petite
-                head -n 10 "$OUTPUT_FILE" >> tmp/lv_all_minmax.csv
-                tail -n 10 "$OUTPUT_FILE" >> tmp/lv_all_minmax.csv
+    # Construction du nom du fichier de sortie
+    OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+    if [ "$CENTRAL_ID" != "[^-]+" ]; then
+        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+    fi
 
-                #trier encore ? 
-                # sort -t ";" -k3n tmp/lv_all_minmax.csv -o tmp/lv_all_minmax.csv
-                echo "Données LV (min et max consommation) sauvegardées dans tmp/lv_all_minmax.csv"
-            else 
-                if [ "$CONSUMER_TYPE" == "comp" ]; then
-                    if [ "$CENTRAL_ID" != "*" ]; then
-                        grep "$CENTRAL_ID" "INPUT_FILE" | awk -F ":" '$5 != "-" {print $4 ":" $7 ":" $8}' >> "$OUTPUT_FILE"
-                        echo "Données LV (comp) filtrées par capacité pour CENTRAL_ID=$CENTRAL_ID et sauvegardées dans $OUTPUT_FILE"
-                    else
-                        grep ";;-;-;;-" "$INPUT_FILE" | awk -F ":" '$5 != "-" {print $4 ":" $7 ":" $8}' >> "$OUTPUT_FILE"
-                        echo "Données LV (comp) filtrées par capacité et sauvegardées dans $OUTPUT_FILE"
-                    fi
-                elif [ "$CONSUMER_TYPE" == "indiv" ]; then
-                    if [ "$CENTRAL_ID" != "*" ]; then
-                        grep "$CENTRAL_ID" "INPUT_FILE" | awk -F ":" '$6 != "-" {print $4 ":" $7 ":" $8}' >> "$OUTPUT_FILE"
-                        echo "Données LV (comp) filtrées par capacité pour CENTRAL_ID=$CENTRAL_ID et sauvegardées dans $OUTPUT_FILE"
-                    else
-                        grep ";;-;-;;-" "$INPUT_FILE" | awk -F ":" '$6 != "-" {print $4 ":" $7 ":" $8}' >> "$OUTPUT_FILE"
-                        echo "Données LV (comp) filtrées par capacité et sauvegardées dans $OUTPUT_FILE"
-                    fi
-                fi
-            fi
+    # Ajout de l'en-tête au fichier de sortie
+    echo "Station LV ID;Capacity(kWh);Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
+
+    # Extraction des lignes contenant la capacité et la consommation
+    case "$CONSUMER_TYPE" in
+        'comp')
+            # Capacité
+            capacity_lines=$(grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7)
+            # Consommation
+            consumption_lines=$(grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8)
+        ;;
+        'indiv')
+            # Capacité
+            capacity_lines=$(grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7)
+            # Consommation
+            consumption_lines=$(grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8)
+        ;;
+        'all')
+            # Capacité
+            capacity_lines=$(grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7)
+            # Consommation
+            consumption_lines=$(grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8)
+            consumption_lines+="\n$(grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8)"
         ;;
         *)
-            echo "Erreur : Type de station non reconnu."
-            exit 1
+            echo "Erreur : Type de consommateur non valide." && exit 1
         ;;
-    esac   #fin du case
+    esac
+
+    # Association des deux sources d'information dans une seule ligne
+    echo "$capacity_lines" | while IFS=";" read -r id capacity; do
+        # Vérification : ignorer les lignes incomplètes
+        if [ -z "$id" ] || [ -z "$capacity" ]; then
+            continue
+        fi
+
+        # Chercher la consommation correspondant à l'identifiant
+        consumption=$(echo "$consumption_lines" | grep -E "^$id;" | cut -d ";" -f2)
+        # Si aucune consommation trouvée, mettre un défaut "-"
+        consumption=${consumption:--}
+
+        # Écrire la ligne combinée dans le fichier
+        echo "$id;$capacity;$consumption" >> "$OUTPUT_FILE"
+    done
+
+    # Nettoyage et filtrage final du fichier pour s'assurer qu'il n'y a que des lignes valides
+    mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
+    awk -F";" 'NF == 3 {print $0}' "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE"
+    rm "${OUTPUT_FILE}.tmp"
+;;
+
 }
 
-#Trier les données par capacité dans l'ordre croissant en préservant l'entête
-{
-    head -n 1 "$OUTPUT_FILE"
-    tail -n +2 "$OUTPUT_FILE" | sort -t ":" -k2n
-} > tmp/sorted_output.csv && mv tmp/sorted_output.csv "$OUTPUT_FILE"
 
 
-#JE M'ARRETE A LA !, manque la durée, DANS LE FICHIER FINAL, 
-#ID HVB  : CAPACITY : LOAD
+    # Suppression des doublons
+    #mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
+    #awk '!seen[$0]++' "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE"
+   # rm "${OUTPUT_FILE}.tmp"
+
+    #echo "Fichier généré : $OUTPUT_FILE"
 
 
 
-# Exécution du programme C
 execute_program() {
     echo "Exécution du programme C..."
-    CodeC/progO/program "$OUTPUT_FILE" tmp/results.csv "$CONSUMER_TYPE"  #tmp results ? 
-    #chemin d'accès au program, input ,  output ,    type de conso pour entrer dans le c.
+    start=$SECONDS
+    ./CodeC/exec ./tmp/prod_data.csv ./tmp/cons_data.csv ./tmp/results.csv "$CONSUMER_TYPE" 
 
-    if [ $? -eq 0 ]; then
-        echo "Résultats sauvegardés dans tmp/results.csv"    #si le prog c'est exé correctement alors 0
+    if [[ $? -eq 0 ]]; then
+        echo "Résultats sauvegardés dans tmp/results.csv"
+        echo "$duration sec"
     else
         echo "Erreur lors de l'exécution du programme C"
+        echo "$duration sec"
         exit 1
     fi
 }
 
+
 # Appel des fonctions
-echo "Vérification des arguments..."
 check_arguments "$@"
-echo "Validation des arguments terminée."
 check_file
-create_directories
-#executable_verification
-data_exploration
+check_directories
+# executable_verification
 #execute_program
+data_exploration
