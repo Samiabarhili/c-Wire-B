@@ -165,7 +165,7 @@ data_exploration() {
 # Tri des lignes par la capacité (colonne 2)
     mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
     head -n 1 "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE" # Conserve l'en-tête
-    tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t";" -k2,2n >> "$OUTPUT_FILE" # Trie par capacité croissante
+    tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t":" -k2,2n >> "$OUTPUT_FILE" # Trie par capacité croissante
     rm "${OUTPUT_FILE}.tmp"
 }
 #--------------------------------------------------------------------------------------------------------------#
