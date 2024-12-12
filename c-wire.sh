@@ -121,9 +121,9 @@ check_directories() {
 
 # Checking the C program executable
 executable_verification() {
-    if [ ! -f ./CodeC/program ]; then # Checks if the `program` executable file does not exist in the `CodeC` directory.
+    if [ ! -f ./codeC/bin/exec ]; then # Checks if the `program` executable file does not exist in the `CodeC` directory.
         echo "Compilation in progress..."
-        make -C CodeC || { echo "Compilation error"; exit 1; } # Run the `make` command in the `CodeC` directory to compile the program.
+        make -C codeC || { echo "Compilation error"; exit 1; } # Run the `make` command in the `CodeC` directory to compile the program.
     fi # If the executable file already exists, no further action is taken.
 }
 
@@ -139,11 +139,11 @@ data_exploration() {
 
     # Special case where there is the ID of the control unit
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
-        OUTPUT_FILE="tmp/${STATION_TYPE}${CONSUMER_TYPE}${CENTRAL_ID}.csv"
+        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
 
     # Adding the first line of the output file
-    echo "${STATION_TYPE} Station ID:Capacity(kWh):Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
+    # echo "${STATION_TYPE} Station ID:Capacity(kWh):Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
 
     case "$STATION_TYPE" in
     'hvb')
@@ -203,26 +203,22 @@ data_exploration() {
 #--------------------------------------------------------------------------------------------------------------#
 
 
-execute_program() {
-    echo "Exécution du programme C..."
-    start=$SECONDS
-    ./CodeC/exec ./tmp/prod_data.csv ./tmp/cons_data.csv ./tmp/results.csv "$CONSUMER_TYPE" 
-
-    if [[ $? -eq 0 ]]; then
-        echo "Résultats sauvegardés dans tmp/results.csv"
-        echo "$duration sec"
+execute_program(){
+    if [ ${CENTRAL_ID} = "[^-]+" ]; then
+    # echo "d"
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv) > ./tmp/${STATION_TYPE}__${CONSUMER_TYPE}.csv
     else
-        echo "Erreur lors de l'exécution du programme C"
-        echo "$duration sec"
-        exit 1
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv) | sort -t ":" -k2n > ./tmp/${STATION_TYPE}__${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
+    echo "Programme C exécuté avec succès."
 }
 
 
-#Appel des fonctions
+# Appel des fonctions
 check_arguments "$@"
 check_file
+adjust_file_permissions "$INPUT_FILE"
 check_directories
-# executable_verification
-#execute_program
+executable_verification
 data_exploration
+execute_program
