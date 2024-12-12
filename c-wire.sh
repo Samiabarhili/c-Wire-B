@@ -49,17 +49,17 @@ for arg in "$@"; do # Cycle through all arguments passed to the script. The "$@"
 done # End of the loop which checks the passed arguments.
 
 
-# Function to check and adjust file permissions
+# Function to check and adjust file permissions, the function takes an argument `$1`, which represents the path of the file to check.
 adjust_file_permissions() {
-    if [ ! -r "$1" ]; then
+    if [ ! -r "$1" ]; then # Checks if the file specified by `$1` does not have read permission.
         echo "Adjusting read permissions for the file : $1"
-        chmod +r "$1"
+        chmod +r "$1" # Adds read permission for the specified file to all users.
     fi
 
-    if [ ! -w "$1" ] && [ -f "$1" ]; then
+    if [ ! -w "$1" ] && [ -f "$1" ]; then # Checks if the file specified by `$1` does not have write permission
         echo "Adjusting write permissions for the file : $1"
-        chmod +w "$1"
-    fi
+        chmod +w "$1" # Adds write permission for the specified file to all users.
+    fi # If none of the above conditions are met, the function does nothing.
 }
 
 # Checking passed arguments
@@ -98,13 +98,13 @@ CENTRAL_ID=${4:-"[^-]+"} # Assign the fourth argument to the `CENTRAL_ID` variab
 
 # Checking if the CSV file exists and is not empty
 check_file() {
-    if [ ! -f "$INPUT_FILE" ]; then
+    if [ ! -f "$INPUT_FILE" ]; then # Checks if the file specified by the `INPUT_FILE` variable does not exist.
         echo "Error: File '$INPUT_FILE' does not exist."
         exit 1
-    elif [ ! -s "$INPUT_FILE" ]; then
+    elif [ ! -s "$INPUT_FILE" ]; then # Checks if the specified file exists but is empty.
         echo "Error: File '$INPUT_FILE' is empty."
-        exit 1
-    fi
+        exit 1 # Terminates the script with an error code `1`, signaling a critical error.
+    fi # End of checks. If both conditions are met (the file exists and is not empty).
 }
 
 adjust_file_permissions "$INPUT_FILE"
@@ -121,10 +121,10 @@ check_directories() {
 
 # Checking the C program executable
 executable_verification() {
-    if [ ! -f ./CodeC/program ]; then
+    if [ ! -f ./CodeC/program ]; then # Checks if the `program` executable file does not exist in the `CodeC` directory.
         echo "Compilation in progress..."
-        make -C CodeC || { echo "Compilation error"; exit 1; }
-    fi
+        make -C CodeC || { echo "Compilation error"; exit 1; } # Run the `make` command in the `CodeC` directory to compile the program.
+    fi # If the executable file already exists, no further action is taken.
 }
 
  #PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
