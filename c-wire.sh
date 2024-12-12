@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 
 echo "                 ____________________________________________"
 echo "                |                                            |"
@@ -31,6 +29,8 @@ echo "       ▼                  ▼"
 echo "┌───────────────┐   ┌───────────────┐"
 echo "│ LV individuals│   │ LV companies  │"
 echo "└───────────────┘   └───────────────┘"
+
+#!/bin/bash
 
 # Affichage de l'aide
 for arg in "$@"; do
@@ -121,9 +121,9 @@ check_directories() {
 
 # Vérification de l'exécutable du programme C
 executable_verification() {
-    if [ ! -f ./codeC/program ]; then
+    if [ ! -f ./CodeC/program ]; then
         echo "Compilation en cours..."
-        make -C codeC || { echo "Erreur de compilation"; exit 1; }
+        make -C CodeC || { echo "Erreur de compilation"; exit 1; }
     fi
 }
 
@@ -139,10 +139,8 @@ data_exploration() {
 
     #cas particulier où il y a l'ID de la centrale
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
-        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+        OUTPUT_FILE="tmp/${STATION_TYPE}${CONSUMER_TYPE}${CENTRAL_ID}.csv"
     fi
-    
-    #export OUTPUT_FILE  #à voir si ça fonctionne
 
     #ajout de la première ligne du fichier de sortie
     echo "${STATION_TYPE} Station ID:Capacity(kWh):Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
@@ -173,7 +171,7 @@ data_exploration() {
                     grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
                 fi
 
-                # Traitement supplémentaire pour `lv all`
+                # Traitement supplémentaire pour lv all
                 if [ "$CONSUMER_TYPE" == "all" ]; then
                     # Fichier pour les 10 postes avec la consommation max et min
                     MINMAX_FILE="tmp/lv_all_minmax.csv"
@@ -199,45 +197,32 @@ data_exploration() {
 # Tri des lignes par la capacité (colonne 2)
     mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
     head -n 1 "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE" # Conserve l'en-tête
-    tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t";" -k2,2n >> "$OUTPUT_FILE" # Trie par capacité croissante
+    tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t":" -k2,2n >> "$OUTPUT_FILE" # Trie par capacité croissante
     rm "${OUTPUT_FILE}.tmp"
 }
 #--------------------------------------------------------------------------------------------------------------#
 
 
 execute_program() {
-
     echo "Exécution du programme C..."
-     # Vérification de l'existence du fichier
-    if [ ! -f "$OUTPUT_FILE" ]; then
-        echo "Erreur : Le fichier d'entrée pour le programme C ($OUTPUT_FILE) est introuvable."
-        exit 1
-    fi
-
-    # Vérification si le fichier est vide
-    if [ ! -s "$OUTPUT_FILE" ]; then
-        echo "Erreur : Le fichier d'entrée pour le programme C ($OUTPUT_FILE) est vide."
-        exit 1
-    fi
     start=$SECONDS
-    ./codeC/program "$OUTPUT_FILE" tmp/results.csv "$CONSUMER_TYPE" 
-    duration = $(( SECONDS - start ))
+    ./CodeC/exec ./tmp/prod_data.csv ./tmp/cons_data.csv ./tmp/results.csv "$CONSUMER_TYPE" 
 
     if [[ $? -eq 0 ]]; then
         echo "Résultats sauvegardés dans tmp/results.csv"
-        echo "durée de l'exécution : ${duration} sec"
+        echo "$duration sec"
     else
         echo "Erreur lors de l'exécution du programme C"
-        echo "durée de l'exécution ${duration} sec"
+        echo "$duration sec"
         exit 1
     fi
 }
 
 
-# Appel des fonctions
+#Appel des fonctions
 check_arguments "$@"
 check_file
 check_directories
-#executable_verification
-data_exploration
+# executable_verification
 #execute_program
+data_exploration
