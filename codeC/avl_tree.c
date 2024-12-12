@@ -115,7 +115,10 @@ AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int 
 		node->right = insertAVL(node->right, station_id, capacity, load, h);// Insert the new node in the right subtree
 	}
 	else{// if the node already exists in the tree, update its data but no insertion
-		node->load += load;
+		node->load += load;     
+		if (capacity > 0) { // Ne met à jour la capacité que si elle est positive
+        node->capacity = capacity;
+        }
 		*h = 0;
 		return node;
 	}
@@ -178,5 +181,5 @@ void saveAVLNodeToFile(const char *filename, AVLNode *node) {
     // Call recursive function to export data
     exportAVLNodeToFile(file, node);
     // Close file
-    fclose(file);
+   	fclose(file);
 }

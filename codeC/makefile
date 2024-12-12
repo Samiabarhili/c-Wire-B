@@ -10,4 +10,4 @@ exec : main.o avl_tree.o
 	gcc progO/main.o progO/avl_tree.o -o progO/exec
 
 clean:
-	rm progO/exec progO/*.o
+	rm progO/exec rogO/*.o

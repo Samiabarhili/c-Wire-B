@@ -206,7 +206,7 @@ data_exploration() {
 execute_program(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
     # echo "d"
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv) > ./tmp/${STATION_TYPE}__${CONSUMER_TYPE}.csv
+    ./codeC/progO/exec < "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv" > "./tmp/${STATION_TYPE}__${CONSUMER_TYPE}.csv"
     else
     (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv) | sort -t ":" -k2n > ./tmp/${STATION_TYPE}__${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
