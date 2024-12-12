@@ -30,62 +30,62 @@ echo "┌───────────────┐   ┌─────�
 echo "│ LV individuals│   │ LV companies  │"
 echo "└───────────────┘   └───────────────┘"
 
-#!/bin/bash
+#!/bin/bash # Declares that the script should be interpreted with Bash.
 
-# Affichage de l'aide
+# Help display
 for arg in "$@"; do
     if [ "$arg" == "-h" ]; then
-        echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
-        echo "Description: Ce script permet de traiter des données de consommation énergétique."
-        echo "Paramètres:"
-        echo "  <fichier_csv>         : Chemin vers le fichier CSV contenant les données."
-        echo "  <type_station>        : Type de station ('hva', 'hvb', 'lv')."
-        echo "  <type_consommateur>   : Type de consommateur ('comp', 'indiv', 'all')."
-        echo "  [id_centrale]         : (Optionnel) Identifiant de la centrale (doit être un nombre)."
+        echo "Use: $0 <file_csv> <type_station> <type_consumer> [id_central]"
+        echo "Description: This script allows you to process energy consumption data."
+        echo "Settings:"
+        echo "  <file_csv>         : Path to the CSV file containing the data."
+        echo "  <type_station>        : Station type ('hva', 'hvb', 'lv')."
+        echo "  <type_consumer>   : Consumer type ('comp', 'indiv', 'all')."
+        echo "  [id_central]         : (Optional) Panel identifier (must be a number)."
         echo "Options:"
-        echo "  -h                    : Affiche cette aide et quitte."
+        echo "  -h                    : Show this help and quit."
         exit 0
     fi
 done
 
 
-# Fonction pour vérifier et ajuster les permissions du fichier
+# Function to check and adjust file permissions
 adjust_file_permissions() {
     if [ ! -r "$1" ]; then
-        echo "Ajustement des permissions de lecture pour le fichier : $1"
+        echo "Adjusting read permissions for the file : $1"
         chmod +r "$1"
     fi
 
     if [ ! -w "$1" ] && [ -f "$1" ]; then
-        echo "Ajustement des permissions d'écriture pour le fichier : $1"
+        echo "Adjusting write permissions for the file : $1"
         chmod +w "$1"
     fi
 }
 
-# Vérification des arguments passés
+# Checking passed arguments
 check_arguments() {
-    if [ $# -lt 3 ]; then # Si le nombre d'arguments est inférieur à 3
-        echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
+    if [ $# -lt 3 ]; then # If the number of arguments is less than 3
+        echo "Usage: $0 <file_csv> <type_station> <type_consumer> [id_central]"
         echo "Time : 0.0sec"
         exit 1
     fi
     if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then
-        echo "Erreur : Le type de station doit être 'hva' ou 'hvb' ou 'lv' ."
+        echo "Error: Station type must be 'hva' or 'hvb' or 'lv'."
         echo "Time : 0.0sec"
         exit 1
     fi
     if [ "$3" != "comp" ] && [ "$3" != "indiv" ] && [ "$3" != "all" ]; then
-        echo "Erreur : Le type de consommateur doit être 'comp' ou 'indiv' ou 'all'."
+        echo "Error: Consumer type must be 'comp' or 'indiv' or 'all'."
         echo "Time : 0.0sec"
         exit 1
     fi
     if { [ "$2" == "hvb" ] || [ "$2" == "hva" ]; } && { [ "$3" == "all" ] || [ "$3" == "indiv" ]; }; then
-        echo "Erreur : Les options suivantes sont interdites : hvb all, hvb indiv, hva all, hva indiv."
+        echo "Error: The following options are prohibited: hvb all, hvb indiv, hva all, hva indiv."
         echo "Time : 0.0sec"
         exit 1
     fi
     if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then
-        echo "Erreur : L'identifiant de la centrale doit être un nombre entre 1,2,3,4 et 5."
+        echo "Error: The panel identifier must be a number between 1,2,3,4 and 5."
         echo "Time : 0.0sec"
         exit 1
     fi
@@ -96,20 +96,20 @@ STATION_TYPE=$2
 CONSUMER_TYPE=$3
 CENTRAL_ID=${4:-"[^-]+"}
 
-# Vérification si le fichier CSV existe et n'est pas vide
+# Checking if the CSV file exists and is not empty
 check_file() {
     if [ ! -f "$INPUT_FILE" ]; then
-        echo "Erreur : Le fichier '$INPUT_FILE' n'existe pas."
+        echo "Error: File '$INPUT_FILE' does not exist."
         exit 1
     elif [ ! -s "$INPUT_FILE" ]; then
-        echo "Erreur : Le fichier '$INPUT_FILE' est vide."
+        echo "Error: File '$INPUT_FILE' is empty."
         exit 1
     fi
 }
 
 adjust_file_permissions "$INPUT_FILE"
 
-# Création des dossiers nécessaires pour le script et suppresion
+# Creation of the necessary folders for the script and deletion
 check_directories() {
     rm -rf "./tmp/"
     for directory in "tmp" "tests" "graphs"; do
@@ -119,11 +119,11 @@ check_directories() {
     done
 }
 
-# Vérification de l'exécutable du programme C
+# Checking the C program executable
 executable_verification() {
     if [ ! -f ./CodeC/program ]; then
-        echo "Compilation en cours..."
-        make -C CodeC || { echo "Erreur de compilation"; exit 1; }
+        echo "Compilation in progress..."
+        make -C CodeC || { echo "Compilation error"; exit 1; }
     fi
 }
 
@@ -131,34 +131,34 @@ executable_verification() {
  #[ "$a" = "$b" ] compare character strings
 
 data_exploration() {
-    # Construction du nom du fichier de sortie
-    echo "Exploration des données pour le type de station : $STATION_TYPE"
+    # Construction of output file name
+    echo "Data mining for station type : $STATION_TYPE"
 
-    #fichier de sortie :
+    # Output file:
     OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
 
-    #cas particulier où il y a l'ID de la centrale
+    # Special case where there is the ID of the control unit
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
         OUTPUT_FILE="tmp/${STATION_TYPE}${CONSUMER_TYPE}${CENTRAL_ID}.csv"
     fi
 
-    #ajout de la première ligne du fichier de sortie
+    # Adding the first line of the output file
     echo "${STATION_TYPE} Station ID:Capacity(kWh):Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
 
     case "$STATION_TYPE" in
     'hvb')
-        # Extraction des capacités avec un "-" comme valeur par défaut pour consommation
+        # Extracting capacities with a "-" as default value for consumption
         grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 | awk -F";" '{print $1":"$2":-"}' >> "$OUTPUT_FILE"
 
-        # Extraction des consommations en remplaçant la colonne 5 par un "-"
+        # Extraction of consumption by replacing column 5 with a “-”
         grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
          
         ;;
         'hva')
-    # Extraction des capacités avec un "-" comme valeur par défaut pour consommation
+    # Extracting capacities with a "-" as default value for consumption
     grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 | awk -F";" '{print $1":"$2":-"}' >> "$OUTPUT_FILE"
 
-    # Extraction des consommations en remplaçant la colonne 5 par un "-"
+    # Extraction of consumption by replacing column 5 with a “-”
     grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
     ;;
 
@@ -171,33 +171,33 @@ data_exploration() {
                     grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
                 fi
 
-                # Traitement supplémentaire pour lv all
+                # Additional processing for lv all
                 if [ "$CONSUMER_TYPE" == "all" ]; then
-                    # Fichier pour les 10 postes avec la consommation max et min
+                    # File for the 10 stations with max and min consumption
                     MINMAX_FILE="tmp/lv_all_minmax.csv"
                     echo "Station ID;Capacity(kWh);Load (kWh)" > "$MINMAX_FILE"
 
-                    # Extraction des 10 consommations minimales
+                    # Extraction of the 10 minimum consumptions
                     tail -n +2 "$OUTPUT_FILE" | sort -t";" -k3,3n | head -n 10 >> "$MINMAX_FILE"
 
-                    # Extraction des 10 consommations maximales
+                    # Extraction of the 10 maximum consumptions
                     tail -n +2 "$OUTPUT_FILE" | sort -t";" -k3,3nr | head -n 10 >> "$MINMAX_FILE"
 
-                    echo "Fichier des 10 postes min et max généré : $MINMAX_FILE"
+                    echo "File of 10 min and max positions generated : $MINMAX_FILE"
                 fi
                 ;;
-            *) echo "Erreur : Type de consommateur non valide." && exit 1 ;;
+            *) echo "Error: Invalid consumer type." && exit 1 ;;
         esac
         ;;
-    *) echo "Erreur : Type de station non valide." && exit 1 ;;
+    *) echo "Error: Invalid station type." && exit 1 ;;
     esac
 
-    # Remplacement des '-' par '0' dans le fichier de sortie
+    # Replacing '-' with '0' in output file
     sed -i 's/-/0/g' "$OUTPUT_FILE"
-# Tri des lignes par la capacité (colonne 2)
+# Sorting rows by capacity (column 2)
     mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
-    head -n 1 "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE" # Conserve l'en-tête
-    tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t":" -k2,2n >> "$OUTPUT_FILE" # Trie par capacité croissante
+    head -n 1 "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE" # Keep the header
+    tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t":" -k2,2n >> "$OUTPUT_FILE" # Sort by increasing capacity
     rm "${OUTPUT_FILE}.tmp"
 }
 #--------------------------------------------------------------------------------------------------------------#
