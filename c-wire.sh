@@ -33,8 +33,8 @@ echo "└───────────────┘   └─────�
 #!/bin/bash # Declares that the script should be interpreted with Bash.
 
 # Help display
-for arg in "$@"; do
-    if [ "$arg" == "-h" ]; then
+for arg in "$@"; do # Cycle through all arguments passed to the script. The "$@" variable contains the list of arguments.
+    if [ "$arg" == "-h" ]; then # Checks if one of the arguments is "-h", which indicates that the user is requesting help.
         echo "Use: $0 <file_csv> <type_station> <type_consumer> [id_central]"
         echo "Description: This script allows you to process energy consumption data."
         echo "Settings:"
@@ -44,9 +44,9 @@ for arg in "$@"; do
         echo "  [id_central]         : (Optional) Panel identifier (must be a number)."
         echo "Options:"
         echo "  -h                    : Show this help and quit."
-        exit 0
+        exit 0 # Terminates script execution after displaying help, as no further processing is necessary.
     fi
-done
+done # End of the loop which checks the passed arguments.
 
 
 # Function to check and adjust file permissions
@@ -91,10 +91,10 @@ check_arguments() {
     fi
 }
 
-INPUT_FILE=$1
-STATION_TYPE=$2
-CONSUMER_TYPE=$3
-CENTRAL_ID=${4:-"[^-]+"}
+INPUT_FILE=$1 # Assigns the first argument passed to the script to the `INPUT_FILE` variable.
+STATION_TYPE=$2 # Assigns the second argument passed to the script to the `STATION_TYPE` variable.
+CONSUMER_TYPE=$3 # Assigns the third argument passed to the script to the `CONSUMER_TYPE` variable.
+CENTRAL_ID=${4:-"[^-]+"} # Assign the fourth argument to the `CENTRAL_ID` variable if provided.
 
 # Checking if the CSV file exists and is not empty
 check_file() {
