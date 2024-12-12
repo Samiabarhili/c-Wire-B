@@ -100,7 +100,7 @@ CENTRAL_ID=${4:-"[^-]+"} # Assign the fourth argument to the `CENTRAL_ID` variab
 check_file() {
     if [ ! -f "$INPUT_FILE" ]; then # Checks if the file specified by the `INPUT_FILE` variable does not exist.
         echo "Error: File '$INPUT_FILE' does not exist."
-        exit 1
+        exit 1 # Terminates the script with an error code `1`, signaling a critical error.
     elif [ ! -s "$INPUT_FILE" ]; then # Checks if the specified file exists but is empty.
         echo "Error: File '$INPUT_FILE' is empty."
         exit 1 # Terminates the script with an error code `1`, signaling a critical error.
@@ -111,12 +111,12 @@ adjust_file_permissions "$INPUT_FILE"
 
 # Creation of the necessary folders for the script and deletion
 check_directories() {
-    rm -rf "./tmp/"
-    for directory in "tmp" "tests" "graphs"; do
-        if [ ! -d "$directory" ]; then
-            mkdir "$directory"
-        fi
-    done
+    rm -rf "./tmp/" # Recursively delete the temporary directory `tmp` and all its contents, if they exist.
+    for directory in "tmp" "tests" "graphs"; do # Boucle sur une liste de répertoires nécessaires : `tmp`, `tests`, et `graphs`.
+        if [ ! -d "$directory" ]; then # Checks if the `$directory` directory does not exist.
+            mkdir "$directory" # Creates the `$directory` directory if it does not already exist.
+        fi # If the directory already exists, no further action is taken.
+    done # End of loop, all necessary directories are now in place.
 }
 
 # Checking the C program executable
