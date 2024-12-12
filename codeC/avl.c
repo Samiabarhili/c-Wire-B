@@ -19,54 +19,65 @@ AVLNode* creerAVL(int station_id, long capacity, long consumption) {
     return new;
 }
 
+// Rotation gauche
 AVLNode* rotationGauche(AVLNode* a) {
-    AVLNode* pivot = a->right; // Le fils droit devient le pivot
-    a->right = pivot->left;    // Le sous-arbre gauche du pivot devient le fils droit de `a`
-    pivot->left = a;           // `a` devient le fils gauche du pivot
+    AVLNode* pivot = a->right;
+    a->right = pivot->left;
+    pivot->left = a;
 
     // Mise à jour des facteurs d'équilibre
     a->balance_factor = a->balance_factor - 1 - (pivot->balance_factor > 0 ? pivot->balance_factor : 0);
     pivot->balance_factor = pivot->balance_factor - 1 + (a->balance_factor < 0 ? a->balance_factor : 0);
 
-    return pivot; // Le pivot devient la nouvelle racine
+    return pivot;
 }
+
+// Rotation droite
 AVLNode* rotationDroite(AVLNode* a) {
-    AVLNode* pivot = a->left;  // Le fils gauche devient le pivot
-    a->left = pivot->right;    // Le sous-arbre droit du pivot devient le fils gauche de `a`
-    pivot->right = a;          // `a` devient le fils droit du pivot
+    AVLNode* pivot = a->left;
+    a->left = pivot->right;
+    pivot->right = a;
 
     // Mise à jour des facteurs d'équilibre
     a->balance_factor = a->balance_factor + 1 - (pivot->balance_factor < 0 ? pivot->balance_factor : 0);
     pivot->balance_factor = pivot->balance_factor + 1 + (a->balance_factor > 0 ? a->balance_factor : 0);
 
-    return pivot; // Le pivot devient la nouvelle racine
+    return pivot;
 }
+
+// Double rotation gauche
 AVLNode* doubleRotationGauche(AVLNode* a) {
-    a->right = rotationDroite(a->right); // Rotation droite sur le fils droit
-    return rotationGauche(a);           // Puis rotation gauche sur la racine
+    a->right = rotationDroite(a->right);
+    return rotationGauche(a);
 }
+
+// Double rotation droite
 AVLNode* doubleRotationDroite(AVLNode* a) {
-    a->left = rotationGauche(a->left); // Rotation gauche sur le fils gauche
-    return rotationDroite(a);         // Puis rotation droite sur la racine
+    a->left = rotationGauche(a->left);
+    return rotationDroite(a);
 }
+
+// Rééquilibrage d'un AVL
 AVLNode* equilibrerAVL(AVLNode* a) {
     if (a->balance_factor >= 2) { // Déséquilibre à droite
         if (a->right->balance_factor >= 0) {
-            return rotationGauche(a); // Rotation simple gauche
+            return rotationGauche(a);
         } else {
-            return doubleRotationGauche(a); // Double rotation gauche
+            return doubleRotationGauche(a);
         }
     } else if (a->balance_factor <= -2) { // Déséquilibre à gauche
         if (a->left->balance_factor <= 0) {
-            return rotationDroite(a); // Rotation simple droite
+            return rotationDroite(a);
         } else {
-            return doubleRotationDroite(a); // Double rotation droite
+            return doubleRotationDroite(a);
         }
     }
     return a; // Pas de rééquilibrage nécessaire
 }
+
+// Insertion dans un AVL
 AVLNode* insertionAVL(AVLNode* a, int station_id, long capacity, long consumption, int* h) {
-    if (a == NULL) { // Si l'arbre est vide, crée un nouveau nœud
+    if (a == NULL) { // Si l'arbre est vide
         *h = 1;
         return creerAVL(station_id, capacity, consumption);
     }
@@ -89,8 +100,10 @@ AVLNode* insertionAVL(AVLNode* a, int station_id, long capacity, long consumptio
     }
     return a;
 }
+
+// Suppression du nœud minimum
 AVLNode* suppMinAVL(AVLNode* a, int* h, int* min_id) {
-    if (a->left == NULL) { // Trouvé le plus petit élément
+    if (a->left == NULL) {
         *min_id = a->station_id;
         AVLNode* temp = a->right;
         free(a);
@@ -108,55 +121,76 @@ AVLNode* suppMinAVL(AVLNode* a, int* h, int* min_id) {
     }
     return a;
 }
+
+// Suppression dans un AVL
 AVLNode* suppressionAVL(AVLNode* a, int station_id, int* h) {
-    if (a == NULL) { // Élément introuvable
+    if (a == NULL) {
         *h = 0;
         return NULL;
     }
 
-    if (station_id < a->station_id) { // Recherche dans le sous-arbre gauche
+    if (station_id < a->station_id) {
         a->left = suppressionAVL(a->left, station_id, h);
         *h = -*h;
-    } else if (station_id > a->station_id) { // Recherche dans le sous-arbre droit
+    } else if (station_id > a->station_id) {
         a->right = suppressionAVL(a->right, station_id, h);
-    } else { // Élément trouvé
-        if (a->right == NULL) { // Pas de fils droit
+    } else {
+        if (a->right == NULL) {
             AVLNode* temp = a->left;
             free(a);
             *h = -1;
             return temp;
-        } else if (a->left == NULL) { // Pas de fils gauche
+        } else if (a->left == NULL) {
             AVLNode* temp = a->right;
             free(a);
             *h = -1;
             return temp;
-        } else { // Deux fils
+        } else {
             int min_id;
             a->right = suppMinAVL(a->right, h, &min_id);
             a->station_id = min_id;
         }
     }
 
-    if (*h != 0) { // Mise à jour et rééquilibrage
+    if (*h != 0) {
         a->balance_factor += *h;
         a = equilibrerAVL(a);
         *h = (a->balance_factor == 0) ? -1 : 0;
     }
     return a;
 }
-// Afficher un AVL en ordre croissant
+
+// Affichage infixe (ordre croissant)
 void afficherInfixe(AVLNode* a) {
     if (a != NULL) {
-        // Parcourir le sous-arbre gauche
         afficherInfixe(a->left);
-
-        // Afficher les données du nœud courant
         printf("Station ID: %d, Capacity: %ld, Consumption: %ld, Balance Factor: %d\n",
                a->station_id, a->capacity, a->total_consumption, a->balance_factor);
-
-        // Parcourir le sous-arbre droit
         afficherInfixe(a->right);
     }
 }
 
+void chargerDonnees(char* fichier, AVLNode** root) {
+    FILE* fp = fopen(fichier, "r");
+    if (!fp) {
+        perror("Erreur d'ouverture du fichier");
+        exit(EXIT_FAILURE);
+    }
+
+    char ligne[1024];
+    int station_id;
+    long capacity, total_consumption;
+    int hauteur = 0;
+
+    // Ignorer la première ligne (en-tête)
+    fgets(ligne, sizeof(ligne), fp);
+
+    while (fgets(ligne, sizeof(ligne), fp)) {
+        // Lire les données au format "station_id:capacity:consumption"
+        sscanf(ligne, "%d:%ld:%ld", &station_id, &capacity, &total_consumption);
+        *root = insertionAVL(*root, station_id, capacity, total_consumption, &hauteur);
+    }
+
+    fclose(fp);
+}
 
