@@ -62,32 +62,32 @@ adjust_file_permissions() {
     fi # If none of the above conditions are met, the function does nothing.
 }
 
-# Checking passed arguments
+# Checking passed arguments. The function takes into account arguments passed to the script via `$#` and `$1`, `$2`, etc.
 check_arguments() {
     if [ $# -lt 3 ]; then # If the number of arguments is less than 3
         echo "Usage: $0 <file_csv> <type_station> <type_consumer> [id_central]"
         echo "Time : 0.0sec"
-        exit 1
+        exit 1 # Exits the script with an error code `1`.
     fi
-    if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then
+    if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then # Checks if the second argument (station type) is neither "hva", "hvb", nor "lv".
         echo "Error: Station type must be 'hva' or 'hvb' or 'lv'."
         echo "Time : 0.0sec"
-        exit 1
+        exit 1 # Exits the script with an error code `1`.
     fi
-    if [ "$3" != "comp" ] && [ "$3" != "indiv" ] && [ "$3" != "all" ]; then
+    if [ "$3" != "comp" ] && [ "$3" != "indiv" ] && [ "$3" != "all" ]; then # Checks if the third argument (consumer type) is neither "comp", "indiv", nor "all".
         echo "Error: Consumer type must be 'comp' or 'indiv' or 'all'."
         echo "Time : 0.0sec"
-        exit 1
+        exit 1 # Exits the script with an error code `1`.
     fi
-    if { [ "$2" == "hvb" ] || [ "$2" == "hva" ]; } && { [ "$3" == "all" ] || [ "$3" == "indiv" ]; }; then
+    if { [ "$2" == "hvb" ] || [ "$2" == "hva" ]; } && { [ "$3" == "all" ] || [ "$3" == "indiv" ]; }; then # Checks whether the station type is "hvb" or "hva", and whether the consumer type is "all" or "indiv".
         echo "Error: The following options are prohibited: hvb all, hvb indiv, hva all, hva indiv."
         echo "Time : 0.0sec"
-        exit 1
+        exit 1 # Exits the script with an error code `1`.
     fi
-    if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then
+    if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then # Checks if the fourth argument is not a number between 1 and 5 (if this argument is provided).
         echo "Error: The panel identifier must be a number between 1,2,3,4 and 5."
         echo "Time : 0.0sec"
-        exit 1
+        exit 1 # Exits the script with an error code `1`.
     fi
 }
 
