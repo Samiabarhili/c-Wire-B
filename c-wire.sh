@@ -163,30 +163,17 @@ data_exploration() {
     ;;
 
        'lv')
-        case "$CONSUMER_TYPE" in
-            'comp'|'indiv'|'all')
-                grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 | awk -F";" '{print $1":"$2":-"}' >> "$OUTPUT_FILE"
-                grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
-                if [ "$CONSUMER_TYPE" == "all" ]; then
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
-                fi
-
-                # Additional processing for lv all
-                if [ "$CONSUMER_TYPE" == "all" ]; then
-                    # File for the 10 stations with max and min consumption
-                    MINMAX_FILE="tmp/lv_all_minmax.csv"
-                    echo "Station ID;Capacity(kWh);Load (kWh)" > "$MINMAX_FILE"
-
-                    # Extraction of the 10 minimum consumptions
-                    tail -n +2 "$OUTPUT_FILE" | sort -t";" -k3,3n | head -n 10 >> "$MINMAX_FILE"
-
-                    # Extraction of the 10 maximum consumptions
-                    tail -n +2 "$OUTPUT_FILE" | sort -t";" -k3,3nr | head -n 10 >> "$MINMAX_FILE"
-
-                    echo "File of 10 min and max positions generated : $MINMAX_FILE"
-                fi
-                ;;
-            *) echo "Error: Invalid consumer type." && exit 1 ;;
+       case "$CONSUMER_TYPE" in
+        'comp')
+        grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 | awk -F";" '{print $1":"$2":-"}' >> "$OUTPUT_FILE"
+        grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
+        ;;
+       'indiv') 
+        grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 | awk -F";" '{print $1":"$2":-"}' >> "$OUTPUT_FILE"
+        grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,8 | awk -F";" '{print $1":-:"$2}' >> "$OUTPUT_FILE"
+        ;;
+        
+        *) echo "Error: Invalid consumer type." && exit 1 ;;
         esac
         ;;
     *) echo "Error: Invalid station type." && exit 1 ;;
