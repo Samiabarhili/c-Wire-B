@@ -135,11 +135,11 @@ data_exploration() {
     echo "Data mining for station type : $STATION_TYPE"
 
     # Output file:
-    OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+    OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.input.csv"
 
     # Special case where there is the ID of the control unit
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
-        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.input.csv"
     fi
 
     # Adding the first line of the output file
@@ -202,15 +202,25 @@ data_exploration() {
 }
 #--------------------------------------------------------------------------------------------------------------#
 
-
-execute_program(){
-    if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    # echo "d"
-    ./codeC/progO/exec < "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv" > "./tmp/${STATION_TYPE}__${CONSUMER_TYPE}.csv"
+   execute_program(){
+    # Définir OUTPUT_FILE pour le cas où CENTRAL_ID est présent
+    if [ "$CENTRAL_ID" != "[^-]+" ]; then
+        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.input.csv"
     else
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv) | sort -t ":" -k2n > ./tmp/${STATION_TYPE}__${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+        OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.input.csv"
     fi
+
+    # Exécution du programme en fonction de CENTRAL_ID
+    if [ ${CENTRAL_ID} = "[^-]+" ]; then
+        # Cas sans CENTRAL_ID
+        ./codeC/progO/exec < "$OUTPUT_FILE" > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+    else
+        # Cas avec CENTRAL_ID
+        (./codeC/progO/exec < "$OUTPUT_FILE") | sort -t ":" -k2n > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+    fi
+
     echo "Programme C exécuté avec succès."
+
 }
 
 
