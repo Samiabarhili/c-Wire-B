@@ -207,35 +207,27 @@ data_exploration() {
     # Exécution du programme en fonction de CENTRAL_ID
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
         # Cas sans CENTRAL_ID avec tri
-        ./codeC/progO/exec < "$OUTPUT_FILE" | sort -t ":" -k2n > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+        ./codeC/progO/exec < "$OUTPUT_FILE" | sort -t ":" -k2n > "./tests/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
         # Ajouter l'entête au fichier de sortie
-        sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+        sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tests/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
     else
         # Cas avec CENTRAL_ID
-        (./codeC/progO/exec < "$OUTPUT_FILE") | sort -t ":" -k2n > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+        (./codeC/progO/exec < "$OUTPUT_FILE") | sort -t ":" -k2n > "./tests/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
         # Ajouter l'entête au fichier de sortie
-        sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+        sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tests/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
     
 
-
-
-
-
-
-
-
-# Spécifier le chemin complet du fichier réel (dans /tmp/)
-INPUT_FILE="tmp/lv_all.csv"
-
-# Vérification que le fichier d'entrée existe
-if [ ! -f "$INPUT_FILE" ]; then
-    echo "Erreur : Le fichier $INPUT_FILE n'existe pas."
-    exit 1
-fi
-
 # Cas spécifique pour CONSUMER_TYPE="all"
 if [ "$CONSUMER_TYPE" = "all" ]; then
+    # Spécifier le chemin complet du fichier réel (dans /tests/)
+    INPUT_FILE="tests/lv_all.csv"
+
+    # Vérification que le fichier d'entrée existe
+    if [ ! -f "$INPUT_FILE" ]; then
+    echo "Erreur : Le fichier $INPUT_FILE n'existe pas."
+    exit 1
+    fi
     # Fichier pour stocker les résultats min/max
     OUTPUT_FILE="tests/lv_all_minmax.csv"
 
@@ -264,11 +256,8 @@ else
     exit 1
 fi
 
-
-
 echo "Programme C exécuté avec succès."
 }
-
 
 
 
