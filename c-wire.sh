@@ -212,16 +212,20 @@ data_exploration() {
 
     # Exécution du programme en fonction de CENTRAL_ID
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-        # Cas sans CENTRAL_ID
-        ./codeC/progO/exec < "$OUTPUT_FILE" > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+        # Cas sans CENTRAL_ID avec tri
+        ./codeC/progO/exec < "$OUTPUT_FILE" | sort -t ":" -k2n > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
+        # Ajouter l'entête au fichier de sortie
+        sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
     else
         # Cas avec CENTRAL_ID
         (./codeC/progO/exec < "$OUTPUT_FILE") | sort -t ":" -k2n > "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
+        # Ajouter l'entête au fichier de sortie
+        sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
 
     echo "Programme C exécuté avec succès."
-
 }
+
 
 
 # Appel des fonctions
