@@ -216,9 +216,59 @@ data_exploration() {
         # Ajouter l'entête au fichier de sortie
         sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
+    
 
-    echo "Programme C exécuté avec succès."
+
+
+
+
+
+
+
+# Spécifier le chemin complet du fichier réel (dans /tmp/)
+INPUT_FILE="tmp/lv_all.csv"
+
+# Vérification que le fichier d'entrée existe
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Erreur : Le fichier $INPUT_FILE n'existe pas."
+    exit 1
+fi
+
+# Cas spécifique pour CONSUMER_TYPE="all"
+if [ "$CONSUMER_TYPE" = "all" ]; then
+    # Fichier pour stocker les résultats min/max
+    OUTPUT_FILE="tests/lv_all_minmax.csv"
+
+    # Exclure l'en-tête et trier par consommation (colonne 3)
+    tail -n +2 "$INPUT_FILE" | sort -t ":" -k3 -n > sorted_by_consumption.csv
+
+    # Récupérer les 10 plus faibles consommations
+    head -n 10 sorted_by_consumption.csv > min_consumption.csv
+
+    # Récupérer les 10 plus fortes consommations
+    tail -n 10 sorted_by_consumption.csv > max_consumption.csv
+
+    # Ajouter l'en-tête dans le fichier final
+    echo "Station ID:Capacity(kWh):Consumption(kWh)" > "$OUTPUT_FILE"
+
+    # Concaténer les résultats dans le fichier final
+    cat min_consumption.csv >> "$OUTPUT_FILE"
+    cat max_consumption.csv >> "$OUTPUT_FILE"
+
+    # Nettoyer les fichiers temporaires
+    rm sorted_by_consumption.csv min_consumption.csv max_consumption.csv
+
+    echo "Traitement terminé. Résultats sauvegardés dans $OUTPUT_FILE."
+else
+    echo "Traitement spécifique pour CONSUMER_TYPE='$CONSUMER_TYPE' non implémenté."
+    exit 1
+fi
+
+
+
+echo "Programme C exécuté avec succès."
 }
+
 
 
 
