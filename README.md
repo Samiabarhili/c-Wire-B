@@ -8,11 +8,10 @@ C-Wire est un gestionnaire de réseau électrique qui permet d'analyser la distr
 
 ### Fonctionnalités principales:
 
-Fonctionnalités
-    Analyse de la capacité des stations électriques par type
-    Calcul de la consommation par type de client
-    Génération de rapports sur l'utilisation du réseau 
-    Mesure du temps d'exécution
+- Analyse de la capacité des stations électriques par type
+- Calcul de la consommation par type de client
+- Génération de rapports sur l'utilisation du réseau
+- Mesure du temps d'exécution
 
 Le programme traite les données d'entrée via un script shell et génère des fichiers de sortie détaillant:
 - La liste des stations par type
@@ -34,16 +33,17 @@ Le programme traite les données d'entrée via un script shell et génère des f
 
 
 Paramètres
-    fichier_csv : Chemin vers le fichier de données (ex: input/c-wire_v25.dat)
-    type_station : Type de station (hvb, hva, lv)
-    type_consommateur : Type de consommateur (comp, indiv, all)
-    id_centrale : (Optionnel) Identifiant de la centrale (1-5)
+- fichier_csv : Chemin vers le fichier de données (ex: input/c-wire_v25.dat)
+- type_station : Type de station (hvb, hva, lv)
+- type_consommateur : Type de consommateur (comp, indiv, all)
+- id_centrale : (Optionnel) Identifiant de la centrale (1-5)
 
 
 Exemple : ./c-wire.sh input/c-wire_v25.dat hvb comp 
 
 
-##Structure du réseau 
+## Structure du réseau 
+
 CENTRALE
    └── HVB
        ├── HVA
