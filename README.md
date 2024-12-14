@@ -44,15 +44,15 @@ Exemple : ./c-wire.sh input/c-wire_v25.dat hvb comp
 
 ## Structure du réseau 
 
-```mermaid
-graph TD;
-    CENTRALE --> HVB;
-    HVB --> HVA;
-    HVB --> "Entreprises HVB";
-    HVA --> LV;
-    LV --> Particuliers;
-    LV --> Entreprises;
-    HVA --> "Entreprises HVA";
+- **CENTRALE**
+  - **HVB**
+    - **HVA**
+      - **LV**
+        - Particuliers
+        - Entreprises
+      - Entreprises HVA
+    - Entreprises HVB
+
 
 
 ## Prérequis techniques
