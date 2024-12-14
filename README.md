@@ -20,7 +20,7 @@ Le programme traite les données d'entrée via un script shell et génère des f
 - La consommation totale par point de connexion
 
 
-- Plus de détails sur le projet [ici]()     #j'aimerais mettre un lien vers le sujet pdf ou bien on dit juste où il doit le trouver
+- Plus de détails sur le projet [ici](https://github.com/Samiabarhili/c-Wire-B/blob/main/Projet_C-Wire_preIng2_2024_2025.pdf)     #j'aimerais mettre un lien vers le sujet pdf ou bien on dit juste où il doit le trouver
 
 
 ## Utilisation
