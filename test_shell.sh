@@ -3,7 +3,8 @@
 
 #Modif faites :
 #- Chmod +x dans permission
-#- ⁠measure_time (je remercie coco avec la collab de chacha pour ça)
+#- ⁠measure_time (je remercie coco avec la collab de chacha pour ça), ya le temps de data exploration, execute program et celui de 
+#all et jsp si c'est bien tout cela qu'il fallait prendre en compte ...
 #- ⁠l’appel des fonctions + suppression des fichiers
 #- ⁠all consumer type (jai transformé le 'if' en fonction) et j'ai apporté qlq modif … 
 #- le code est fonctionnel ! encore qlq trucs à régler (faut des valeurs absolues pour le tri des surplus), revoir le lv min max.
