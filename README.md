@@ -9,8 +9,7 @@ C-Wire est un gestionnaire de réseau électrique qui permet d'analyser la distr
 ### Fonctionnalités principales:
 
 - Analyse de la capacité des stations électriques par type
-- Calcul de la consommation par type de client
-- Génération de rapports sur l'utilisation du réseau
+- Calcul de la consommation totale par type de client
 - Mesure du temps d'exécution
 
 Le programme traite les données d'entrée via un script shell et génère des fichiers de sortie détaillant:
