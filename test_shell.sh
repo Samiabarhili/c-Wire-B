@@ -125,9 +125,6 @@ check_file() {
     fi # End of checks. If both conditions are met (the file exists and is not empty).
 }
 
-adjust_file_permissions "$INPUT_FILE"
-
-
 #----------------------------------Creation of the necessary folders-----------------------------------------#
 
 # Creation of the necessary folders for the script and deletion
