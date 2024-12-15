@@ -316,6 +316,7 @@ measure_time() {
 rm -f tests/*.csv
 
 # Appel des fonctions
+adjust_file_permissions "$0"
 check_arguments "$@"
 check_file
 adjust_file_permissions "$INPUT_FILE"
