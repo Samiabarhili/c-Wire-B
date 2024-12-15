@@ -10,7 +10,7 @@ typedef struct AVLNode {
     struct AVLNode* right;
 } AVLNode;
 
-// Déclaration des fonctions
+// Function declaration
 AVLNode* creerAVL(int station_id, long capacity, long consumption);
 AVLNode* insertionAVL(AVLNode* a, int station_id, long capacity, long consumption, int* h);
 AVLNode* suppressionAVL(AVLNode* a, int station_id, int* h);
