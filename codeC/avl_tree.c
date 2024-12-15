@@ -5,7 +5,7 @@
 AVLNode* newNode(int station_id, long capacity, long load) {
     AVLNode* node = (AVLNode*) malloc(sizeof(AVLNode));
     if (node == NULL) {
-        fprintf(stderr, "Erreur d'allocation mémoire\n"); // Display an error message, if allocation failed
+        fprintf(stderr, "Memory allocation error\n"); // Display an error message, if allocation failed
         exit(EXIT_FAILURE);
     }
 
@@ -173,7 +173,7 @@ void exportAVLNodeToFile(FILE *file, AVLNode *node) {
 void saveAVLNodeToFile(const char *filename, AVLNode *node) {
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
-        perror("Erreur lors de l'ouverture du fichier pour l'export");
+        perror("Error opening file for export");
         return;
     }
     // Write file header
