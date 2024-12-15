@@ -220,48 +220,48 @@ data_exploration() {
 
 # Cas spécifique pour CONSUMER_TYPE="all"
 if [ "$CONSUMER_TYPE" = "all" ]; then
-    # Spécifier le chemin complet du fichier réel (dans /tests/)
+    # Specify the full path of the actual file (in /tests/)
     INPUT_FILE="tests/lv_all.csv"
 
-    # Vérification que le fichier d'entrée existe
+    # Checking that the input file exists
     if [ ! -f "$INPUT_FILE" ]; then
     echo "Erreur : Le fichier $INPUT_FILE n'existe pas."
     exit 1
     fi
-    # Fichier pour stocker les résultats min/max
+    # File to store min/max results
     OUTPUT_FILE="tests/lv_all_minmax.csv"
 
-    # Exclure l'en-tête et trier par consommation (colonne 3)
+    # Exclude header and sort by consumption (column 3)
     tail -n +2 "$INPUT_FILE" | sort -t ":" -k3 -n > sorted_by_consumption.csv
 
-    # Récupérer les 10 plus faibles consommations
+    # Recover the 10 lowest consumptions
     head -n 10 sorted_by_consumption.csv > min_consumption.csv
 
-    # Récupérer les 10 plus fortes consommations
+    # Recover the 10 highest consumptions
     tail -n 10 sorted_by_consumption.csv > max_consumption.csv
 
-    # Ajouter l'en-tête dans le fichier final
+    # Add header in final file
     echo "Station ID:Capacity(kWh):Consumption(kWh)" > "$OUTPUT_FILE"
 
-    # Concaténer les résultats dans le fichier final
+    # Concatenate the results into the final file
     cat min_consumption.csv >> "$OUTPUT_FILE"
     cat max_consumption.csv >> "$OUTPUT_FILE"
 
-    # Nettoyer les fichiers temporaires
+    # Clean temporary files
     rm sorted_by_consumption.csv min_consumption.csv max_consumption.csv
 
-    echo "Traitement terminé. Résultats sauvegardés dans $OUTPUT_FILE."
+    echo "Processing completed. Results saved in $OUTPUT_FILE."
 else
-    echo "Traitement spécifique pour CONSUMER_TYPE='$CONSUMER_TYPE' non implémenté."
+    echo "Specific treatment for CONSUMER_TYPE='$CONSUMER_TYPE' not implemented."
     exit 1
 fi
 
-echo "Programme C exécuté avec succès."
+echo "C program executed successfully."
 }
 
 
 
-# Appel des fonctions
+# Calling functions
 check_arguments "$@"
 check_file
 adjust_file_permissions "$INPUT_FILE"
