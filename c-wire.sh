@@ -197,28 +197,28 @@ data_exploration() {
 #--------------------------------------------------------------------------------------------------------------#
 
    execute_program(){
-    # Définir OUTPUT_FILE pour le cas où CENTRAL_ID est présent
+    # Define OUTPUT_FILE for case CENTRAL_ID is present
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
         OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.input.csv"
     else
         OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.input.csv"
     fi
 
-    # Exécution du programme en fonction de CENTRAL_ID
+   # Running the program based on CENTRAL_ID
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-        # Cas sans CENTRAL_ID avec tri
+        # Case without CENTRAL_ID with sorting
         ./codeC/progO/exec < "$OUTPUT_FILE" | sort -t ":" -k2n > "./tests/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
-        # Ajouter l'entête au fichier de sortie
+        # Add header to output file
         sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tests/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
     else
-        # Cas avec CENTRAL_ID
+        # Case with CENTRAL_ID
         (./codeC/progO/exec < "$OUTPUT_FILE") | sort -t ":" -k2n > "./tests/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
-        # Ajouter l'entête au fichier de sortie
+        # Add header to output file
         sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tests/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
     
 
-# Cas spécifique pour CONSUMER_TYPE="all"
+# Specific case for CONSUMER_TYPE="all"
 if [ "$CONSUMER_TYPE" = "all" ]; then
     # Specify the full path of the actual file (in /tests/)
     INPUT_FILE="tests/lv_all.csv"
