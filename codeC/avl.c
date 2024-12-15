@@ -4,10 +4,10 @@
 
 #include "avl.h"
 
-AVLNode* creerAVL(int station_id, long capacity, long consumption) {
+AVLNode* createAVL(int station_id, long capacity, long consumption) {
     AVLNode* new = (AVLNode*)malloc(sizeof(AVLNode));
     if (new == NULL) {
-        perror("Erreur d'allocation mémoire");
+        perror(“Memory allocation error”);
         exit(EXIT_FAILURE);
     }
     new->station_id = station_id;
@@ -19,90 +19,90 @@ AVLNode* creerAVL(int station_id, long capacity, long consumption) {
     return new;
 }
 
-// Rotation gauche
-AVLNode* rotationGauche(AVLNode* a) {
+// Rotate left
+AVLNode* rotationLeft(AVLNode* a) {
     AVLNode* pivot = a->right;
     a->right = pivot->left;
     pivot->left = a;
 
-    // Mise à jour des facteurs d'équilibre
+    // Update balance factors
     a->balance_factor = a->balance_factor - 1 - (pivot->balance_factor > 0 ? pivot->balance_factor : 0);
     pivot->balance_factor = pivot->balance_factor - 1 + (a->balance_factor < 0 ? a->balance_factor : 0);
 
     return pivot;
 }
 
-// Rotation droite
-AVLNode* rotationDroite(AVLNode* a) {
+// Rotate right
+AVLNode* rotationRight(AVLNode* a) {
     AVLNode* pivot = a->left;
     a->left = pivot->right;
     pivot->right = a;
 
-    // Mise à jour des facteurs d'équilibre
+    // Update balance factors
     a->balance_factor = a->balance_factor + 1 - (pivot->balance_factor < 0 ? pivot->balance_factor : 0);
     pivot->balance_factor = pivot->balance_factor + 1 + (a->balance_factor > 0 ? a->balance_factor : 0);
 
     return pivot;
 }
 
-// Double rotation gauche
-AVLNode* doubleRotationGauche(AVLNode* a) {
-    a->right = rotationDroite(a->right);
-    return rotationGauche(a);
+// Double left rotation
+AVLNode* doubleRotateLeft(AVLNode* a) {
+    a->right = rotationRight(a->right);
+    return rotationLeft(a);
 }
 
-// Double rotation droite
-AVLNode* doubleRotationDroite(AVLNode* a) {
-    a->left = rotationGauche(a->left);
-    return rotationDroite(a);
+// Double right rotation
+AVLNode* doubleRotateRight(AVLNode* a) {
+    a->left = rotationLeft(a->left);
+    return rotationRight(a);
 }
 
-// Rééquilibrage d'un AVL
-AVLNode* equilibrerAVL(AVLNode* a) {
-    if (a->balance_factor >= 2) { // Déséquilibre à droite
+// Rebalancing an AVL
+AVLNode* balanceAVL(AVLNode* a) {
+    if (a->balance_factor >= 2) { // Imbalance on the right
         if (a->right->balance_factor >= 0) {
-            return rotationGauche(a);
+            return rotationLeft(a);
         } else {
-            return doubleRotationGauche(a);
+            return doubleRotateLeft(a);
         }
-    } else if (a->balance_factor <= -2) { // Déséquilibre à gauche
+    } else if (a->balance_factor <= -2) { // Unbalance on the left
         if (a->left->balance_factor <= 0) {
-            return rotationDroite(a);
+            return rotationRight(a);
         } else {
-            return doubleRotationDroite(a);
+            return doubleRotateRight(a);
         }
     }
-    return a; // Pas de rééquilibrage nécessaire
+    return a; // No rebalancing necessary
 }
 
-// Insertion dans un AVL
+// Insertion into an AVL
 AVLNode* insertionAVL(AVLNode* a, int station_id, long capacity, long consumption, int* h) {
-    if (a == NULL) { // Si l'arbre est vide
+    if (a == NULL) { // If the tree is empty
         *h = 1;
-        return creerAVL(station_id, capacity, consumption);
+        return createAVL(station_id, capacity, consumption);
     }
 
-    if (station_id < a->station_id) { // Insertion dans le sous-arbre gauche
+    if (station_id < a->station_id) { // Insert into left subtree
         a->left = insertionAVL(a->left, station_id, capacity, consumption, h);
-        *h = -*h; // L'impact sur la hauteur est inversé pour la gauche
-    } else if (station_id > a->station_id) { // Insertion dans le sous-arbre droit
+        *h = -*h; // The impact on height is reversed for the left
+    } else if (station_id > a->station_id) { // Insert into right subtree
         a->right = insertionAVL(a->right, station_id, capacity, consumption, h);
-    } else { // Mise à jour si la station existe déjà
+    } else { // Update if the station already exists
         a->total_consumption += consumption;
-        *h = 0; // Pas de changement de hauteur
+        *h = 0; // No change in height
         return a;
     }
 
-    if (*h != 0) { // Mise à jour du facteur d'équilibre et rééquilibrage
+    if (*h != 0) { // Balance factor update and rebalancing
         a->balance_factor += *h;
-        a = equilibrerAVL(a);
+        a = balanceAVL(a);
         *h = (a->balance_factor == 0) ? 0 : 1;
     }
     return a;
 }
 
-// Suppression du nœud minimum
-AVLNode* suppMinAVL(AVLNode* a, int* h, int* min_id) {
+// Removing the minimum node
+AVLNode* deletMinAVL(AVLNode* a, int* h, int* min_id) {
     if (a->left == NULL) {
         *min_id = a->station_id;
         AVLNode* temp = a->right;
@@ -111,29 +111,29 @@ AVLNode* suppMinAVL(AVLNode* a, int* h, int* min_id) {
         return temp;
     }
 
-    a->left = suppMinAVL(a->left, h, min_id);
+    a->left = deletMinAVL(a->left, h, min_id);
     *h = -*h;
 
     if (*h != 0) {
         a->balance_factor += *h;
-        a = equilibrerAVL(a);
+        a = balanceAVL(a);
         *h = (a->balance_factor == 0) ? -1 : 0;
     }
     return a;
 }
 
-// Suppression dans un AVL
-AVLNode* suppressionAVL(AVLNode* a, int station_id, int* h) {
+// Deletion in an AVL
+AVLNode* deletionAVL(AVLNode* a, int station_id, int* h) {
     if (a == NULL) {
         *h = 0;
         return NULL;
     }
 
     if (station_id < a->station_id) {
-        a->left = suppressionAVL(a->left, station_id, h);
+        a->left = deletionAVL(a->left, station_id, h);
         *h = -*h;
     } else if (station_id > a->station_id) {
-        a->right = suppressionAVL(a->right, station_id, h);
+        a->right = deletionAVL(a->right, station_id, h);
     } else {
         if (a->right == NULL) {
             AVLNode* temp = a->left;
@@ -147,48 +147,48 @@ AVLNode* suppressionAVL(AVLNode* a, int station_id, int* h) {
             return temp;
         } else {
             int min_id;
-            a->right = suppMinAVL(a->right, h, &min_id);
+            a->right = deletMinAVL(a->right, h, &min_id);
             a->station_id = min_id;
         }
     }
 
     if (*h != 0) {
         a->balance_factor += *h;
-        a = equilibrerAVL(a);
+        a = balanceAVL(a);
         *h = (a->balance_factor == 0) ? -1 : 0;
     }
     return a;
 }
 
-// Affichage infixe (ordre croissant)
-void afficherInfixe(AVLNode* a) {
+// Fixed display (ascending order)
+void showInfix(AVLNode* a) {
     if (a != NULL) {
-        afficherInfixe(a->left);
+        showInfix(a->left);
         printf("Station ID: %d, Capacity: %ld, Consumption: %ld, Balance Factor: %d\n",
                a->station_id, a->capacity, a->total_consumption, a->balance_factor);
-        afficherInfixe(a->right);
+        showInfix(a->right);
     }
 }
 
-void chargerDonnees(char* fichier, AVLNode** root) {
-    FILE* fp = fopen(fichier, "r");
+void loadData(char* file, AVLNode** root) {
+    FILE* fp = fopen(file, "r");
     if (!fp) {
-        perror("Erreur d'ouverture du fichier");
+        perror(“Error opening file”);
         exit(EXIT_FAILURE);
     }
 
-    char ligne[1024];
+    char line[1024];
     int station_id;
     long capacity, total_consumption;
-    int hauteur = 0;
+    int height = 0;
 
-    // Ignorer la première ligne (en-tête)
-    fgets(ligne, sizeof(ligne), fp);
+    // Ignore the first line (header)
+    fgets(line, sizeof(line), fp);
 
-    while (fgets(ligne, sizeof(ligne), fp)) {
-        // Lire les données au format "station_id:capacity:consumption"
-        sscanf(ligne, "%d:%ld:%ld", &station_id, &capacity, &total_consumption);
-        *root = insertionAVL(*root, station_id, capacity, total_consumption, &hauteur);
+    while (fgets(line, sizeof(line), fp)) {
+        // Read data in "station_id:capacity:consumption" format
+        sscanf(line, "%d:%ld:%ld", &station_id, &capacity, &total_consumption);
+        *root = insertionAVL(*root, station_id, capacity, total_consumption, &height);
     }
 
     fclose(fp);
