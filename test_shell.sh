@@ -300,12 +300,11 @@ measure_time() {
         "$@"                           # Exécution de la commande
         local status=$?                # Capture du statut de la commande
         local end_time=$(date +%s.%N)  # Temps de fin
-        local duration=$(printf "%.1f" "$(echo "$end_time - $start_time" | bc)") # Calcul de la durée avec 2 chiffres après la virgule
+        local duration=$(echo "scale=2; $end_time - $start_time" | bc) # Calcul de la durée avec 2 chiffres après la virgule
 
         echo -e "Durée de traitement pour $1 : ${duration}sec \n"
-        return $status # Retourne le statut d'origine de la commande
-    }
 
+    }
 
 #---------------------------------Main---------------------------------------------------------------------------#
 
