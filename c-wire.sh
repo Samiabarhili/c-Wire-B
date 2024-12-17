@@ -1,36 +1,7 @@
-#!/bin/bash
+#!/bin/bash  
+# Declares that the script should be interpreted with Bash.
 
-
-echo "                 ____________________________________________"
-echo "                |                                            |"
-echo "                |                 CENTRALE                   |"
-echo "                |____________________________________________|"
-echo "                                     |"
-echo "                                     ▼"
-echo "                                ┌─────────┐"
-echo "                                │   HVB   │"
-echo "                                └─────────┘"
-echo "                                     |"
-echo "                ┌────────────────────┴───────────────────┐"
-echo "                ▼                                        ▼"
-echo "        ┌───────────────┐                         ┌───────────────┐"
-echo "        │     HVA       │                         │ HVB companies │"
-echo "        └───────────────┘                         └───────────────┘"
-echo "                 |"
-echo "        ┌────────┴─────────────────────────────┐"
-echo "        ▼                                      ▼"
-echo "   ┌───────────────┐                  ┌───────────────┐"
-echo "   │      LV       │                  │ HVA companies │"
-echo "   └───────────────┘                  └───────────────┘"
-echo "                |"                        
-echo "                |"
-echo "       ┌────────┴─────────┐"
-echo "       ▼                  ▼"
-echo "┌───────────────┐   ┌───────────────┐"
-echo "│ LV individuals│   │ LV companies  │"
-echo "└───────────────┘   └───────────────┘"
-
-#!/bin/bash # Declares that the script should be interpreted with Bash.
+#ANCIENNEMENT TEST_SHELL.SH
 
 # Help display
 for arg in "$@"; do # Cycle through all arguments passed to the script. The "$@" variable contains the list of arguments.
@@ -49,18 +20,56 @@ for arg in "$@"; do # Cycle through all arguments passed to the script. The "$@"
 done # End of the loop which checks the passed arguments.
 
 
+echo "                 ____________________________________________"
+echo "                |                                            |"
+echo "                |                 CENTRALE                   |"
+echo "                |____________________________________________|"
+echo "                                     |"
+echo "                                     ▼"
+echo "                                ┌─────────┐"
+echo "                                │   HVB   │"
+echo "                                └─────────┘"
+echo "                                     |"
+echo "                ┌────────────────────┴───────────────────┐"
+echo "                ▼                                        ▼"
+echo "        ┌───────────────┐                         ┌───────────────┐"
+echo "        │     HVA       │                         │ HVB companies │"
+echo "        └───────────────┘                         └───────────────┘"
+echo "                 |"
+echo "         ┌───────┴─────────────────────────────┐"
+echo "         ▼                                     ▼"
+echo "    ┌───────────────┐                  ┌───────────────┐"
+echo "    │      LV       │                  │ HVA companies │"
+echo "    └───────────────┘                  └───────────────┘"
+echo "                |"                        
+echo "                |"
+echo "       ┌────────┴─────────┐"
+echo "       ▼                  ▼"
+echo "┌───────────────┐   ┌───────────────┐"
+echo "│ LV individuals│   │ LV companies  │"
+echo "└───────────────┘   └───────────────┘"
+
+#----------------------------------File permissions----------------------------------------------------------#
+
 # Function to check and adjust file permissions, the function takes an argument `$1`, which represents the path of the file to check.
 adjust_file_permissions() {
-    if [ ! -r "$1" ]; then # Checks if the file specified by `$1` does not have read permission.
-        echo "Adjusting read permissions for the file : $1"
-        chmod +r "$1" # Adds read permission for the specified file to all users.
-    fi
+    #if [ ! -r "$1" ]; then # Checks if the file specified by `$1` does not have read permission.
+     #   echo "Adjusting read permissions for the file : $1"
+      #  chmod +r "$1" # Adds read permission for the specified file to all users.
+    #fi
 
-    if [ ! -w "$1" ] && [ -f "$1" ]; then # Checks if the file specified by `$1` does not have write permission
-        echo "Adjusting write permissions for the file : $1"
-        chmod +w "$1" # Adds write permission for the specified file to all users.
+    #if [ ! -w "$1" ] && [ -f "$1" ]; then # Checks if the file specified by `$1` does not have write permission.
+     #   echo "Adjusting write permissions for the file : $1"
+      #  chmod +w "$1" # Adds write permission for the specified file to all users.
+    #fi
+
+    if [ ! -x "$1" ] && [ -f "$1" ]; then # Checks if the file specified by `$1` does not have execute permission.
+        echo "Adjusting execute permissions for the file : $1"
+        chmod +x "$1" # Adds execute permission for the specified file to all users.
     fi # If none of the above conditions are met, the function does nothing.
 }
+
+#----------------------------------Argument verification----------------------------------------------------------#
 
 # Checking passed arguments. The function takes into account arguments passed to the script via `$#` and `$1`, `$2`, etc.
 check_arguments() {
@@ -91,6 +100,8 @@ check_arguments() {
     fi
 }
 
+#----------------------------------File verification----------------------------------------------------------#
+
 INPUT_FILE=$1 # Assigns the first argument passed to the script to the `INPUT_FILE` variable.
 STATION_TYPE=$2 # Assigns the second argument passed to the script to the `STATION_TYPE` variable.
 CONSUMER_TYPE=$3 # Assigns the third argument passed to the script to the `CONSUMER_TYPE` variable.
@@ -107,7 +118,7 @@ check_file() {
     fi # End of checks. If both conditions are met (the file exists and is not empty).
 }
 
-adjust_file_permissions "$INPUT_FILE"
+#----------------------------------Creation of the necessary folders-----------------------------------------#
 
 # Creation of the necessary folders for the script and deletion
 check_directories() {
@@ -118,6 +129,10 @@ check_directories() {
         fi # If the directory already exists, no further action is taken.
     done # End of loop, all necessary directories are now in place.
 }
+
+
+
+#----------------------------------Executable verification---------------------------------------------------#
 
 # Checking the C program executable
 executable_verification() {
@@ -130,20 +145,23 @@ executable_verification() {
  #PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
  #[ "$a" = "$b" ] compare character strings
 
+
+
+#----------------------------------Data exploration----------------------------------------------------------#
+
 data_exploration() {
+    echo -e "\n=== Sorting data ==="
     # Construction of output file name
     echo "Data mining for station type : $STATION_TYPE"
-
+    echo "Data mining for consumer type : $CONSUMER_TYPE"
     # Output file:
     OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.input.csv"
 
     # Special case where there is the ID of the control unit
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
         OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.input.csv"
+        echo "Data mining for central ID : $CENTRAL_ID"
     fi
-
-    # Adding the first line of the output file
-    # echo "${STATION_TYPE} Station ID:Capacity(kWh):Load ($CONSUMER_TYPE) (kWh)" > "$OUTPUT_FILE"
 
     case "$STATION_TYPE" in
     'hvb')
@@ -188,84 +206,124 @@ data_exploration() {
 
     # Replacing '-' with '0' in output file
     sed -i 's/-/0/g' "$OUTPUT_FILE"
-# Sorting rows by capacity (column 2)
+    
+    # Sorting rows by capacity (column 2)
     mv "$OUTPUT_FILE" "${OUTPUT_FILE}.tmp"
     head -n 1 "${OUTPUT_FILE}.tmp" > "$OUTPUT_FILE" # Keep the header
     tail -n +2 "${OUTPUT_FILE}.tmp" | sort -t":" -k2,2n >> "$OUTPUT_FILE" # Sort by increasing capacity
     rm "${OUTPUT_FILE}.tmp"
 }
-#--------------------------------------------------------------------------------------------------------------#
 
-   execute_program(){
-    # Define OUTPUT_FILE for case CENTRAL_ID is present
+#-----------------------------------------Program execution---------------------------------------------------------------#
+
+# Function to execute the C program
+execute_program(){
+    echo -e "=== Program execution ==="
+    
+    # Définir OUTPUT_FILE pour le cas où CENTRAL_ID est présent
     if [ "$CENTRAL_ID" != "[^-]+" ]; then
         OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.input.csv"
+        
     else
         OUTPUT_FILE="tmp/${STATION_TYPE}_${CONSUMER_TYPE}.input.csv"
     fi
 
-   # Running the program based on CENTRAL_ID
+    # Exécution du programme en fonction de CENTRAL_ID
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-        # Case without CENTRAL_ID with sorting
+        # Cas sans CENTRAL_ID avec tri
         ./codeC/progO/exec < "$OUTPUT_FILE" | sort -t ":" -k2n > "./tests/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
-        # Add header to output file
+        # Ajouter l'entête au fichier de sortie
         sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tests/${STATION_TYPE}_${CONSUMER_TYPE}.csv"
     else
-        # Case with CENTRAL_ID
+        # Cas avec CENTRAL_ID
         (./codeC/progO/exec < "$OUTPUT_FILE") | sort -t ":" -k2n > "./tests/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
-        # Add header to output file
+        # Ajouter l'entête au fichier de sortie
         sed -i "1i ${STATION_TYPE} Station ID:Capacity(kWh):Load (${CONSUMER_TYPE}) (kWh)" "./tests/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv"
     fi
     
+    echo "Programme C exécuté avec succès. Fichier de sortie sauvegardé dans tests/."
+    
+   }
 
-# Specific case for CONSUMER_TYPE="all"
-if [ "$CONSUMER_TYPE" = "all" ]; then
-    # Specify the full path of the actual file (in /tests/)
-    INPUT_FILE="tests/lv_all.csv"
+#------------------------------------Specific case for CONSUMER_TYPE="all"----------------------------------------------#
 
-    # Checking that the input file exists
-    if [ ! -f "$INPUT_FILE" ]; then
-    echo "Erreur : Le fichier $INPUT_FILE n'existe pas."
-    exit 1
-    fi
-    # File to store min/max results
-    OUTPUT_FILE="tests/lv_all_minmax.csv"
-
-    # Exclude header and sort by consumption (column 3)
-    tail -n +2 "$INPUT_FILE" | sort -t ":" -k3 -n > sorted_by_consumption.csv
-
-    # Recover the 10 lowest consumptions
-    head -n 10 sorted_by_consumption.csv > min_consumption.csv
-
-    # Recover the 10 highest consumptions
-    tail -n 10 sorted_by_consumption.csv > max_consumption.csv
-
-    # Add header in final file
-    echo "Station ID:Capacity(kWh):Consumption(kWh)" > "$OUTPUT_FILE"
-
-    # Concatenate the results into the final file
-    cat min_consumption.csv >> "$OUTPUT_FILE"
-    cat max_consumption.csv >> "$OUTPUT_FILE"
-
-    # Clean temporary files
-    rm sorted_by_consumption.csv min_consumption.csv max_consumption.csv
-
-    echo "Processing completed. Results saved in $OUTPUT_FILE."
+# Fonction pour traiter le cas où CONSUMER_TYPE="all"
+all_consumer_type() {
+   # Spécifier le chemin complet du fichier réel (dans /tests/)
+if [ "$CENTRAL_ID" != "[^-]+" ]; then
+    INPUT_FILE="tests/lv_all_${CENTRAL_ID}.csv"
 else
-    echo "Specific treatment for CONSUMER_TYPE='$CONSUMER_TYPE' not implemented."
-    exit 1
+    INPUT_FILE="tests/lv_all.csv"
 fi
 
-echo "C program executed successfully."
+# Vérification que le fichier d'entrée existe
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Erreur : Le fichier $INPUT_FILE n'existe pas."
+    exit 1
+fi
+    echo "=== Traitement du type 'all' ==="
+    #Fichier pour stocker les résultats min/max
+    OUTPUT_FILE="tests/lv_all_minmax.csv"
+
+    #Exclure l'en-tête et trier par consommation totale (colonne 3) décroissante avec la commande 'nr'
+    tail -n +2 "$INPUT_FILE" | sort -t ":" -k3 -nr > tmp/sorted_by_consumption.csv
+
+    # Récupérer les 10 plus fortes consommations
+    head -n 10 "tmp/sorted_by_consumption.csv" > tmp/selected.csv
+    # Récupérer les 10 plus faibles consommations
+    tail -n 10 "tmp/sorted_by_consumption.csv" >> tmp/selected.csv
+    
+
+    echo "Calcul et tri des surplus..."
+    #conso - capacité
+    awk -F":" '{print $0 ":" ($3-$2)}' tmp/selected.csv | sort -t ":" -k4,4nr | cut -d":" -f1-3 > tmp/sorted_surplus.csv
+
+    echo "${STATION_TYPE} Station ID:Capacity(kWh):Consumption(kWh)" > "$OUTPUT_FILE"
+    cat tmp/sorted_surplus.csv >> "$OUTPUT_FILE"
+    
+
+    # Nettoyer le fichier temporaire  (pour les tests je retire les suppressions de fichiers mais faut remettre)
+    # rm -f tmp/sorted_by_consumption.csv tmp/selected.csv tmp/sorted_surplus.csv
+    echo "Traitement terminé. Résultats sauvegardés dans $OUTPUT_FILE."
 }
 
 
 
-# Calling functions
+
+#---------------------------------Time measurement---------------------------------------------------------------#
+
+measure_time() {
+       # echo "=== début de la mesure du temps pour $1 ==="
+        local start_time=$(date +%s.%N) # Temps de début
+        "$@"                           # Exécution de la commande
+        local status=$?                # Capture du statut de la commande
+        local end_time=$(date +%s.%N)  # Temps de fin
+        local duration=$(echo "$end_time - $start_time" | bc -l) # Calcul de la durée avec précision maximale
+        local formatted_duration=$(printf "%.1f" $duration) # Formater la durée avec 1 chiffre après la virgule
+
+        echo -e "Durée de traitement pour $1 : ${formatted_duration}sec \n"
+
+    }
+
+
+#---------------------------------Main---------------------------------------------------------------------------#
+
+# Nettoyer les fichiers tests générés précédemment
+rm -f tests/*.csv
+# Appel des fonctions
+adjust_file_permissions "$0"
 check_arguments "$@"
 check_file
 adjust_file_permissions "$INPUT_FILE"
 check_directories
 executable_verification
-data_exploration
-execute_program
+
+measure_time data_exploration
+measure_time execute_program
+if [ "$CONSUMER_TYPE" = "all" ]; then
+    measure_time all_consumer_type
+fi
+
+# Nettoyer uniquement les fichiers temporaires  (pour les tests je la retire mais faut la remettre)
+rm -f tmp/*.csv
+
