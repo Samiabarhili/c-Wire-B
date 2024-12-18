@@ -221,7 +221,7 @@ all_consumer_type() {
     echo "Processing completed. Results saved in $OUTPUT_FILE."
 }
 
-# Function to measure time
+# Function that measures and displays the execution time of a given command
 measure_time() {
     local start_time=$(date +%s.%N) # Start time
     "$@"                           # Execute the command
