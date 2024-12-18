@@ -235,17 +235,16 @@ measure_time() {
 
 # Main script execution
 rm -f tests/*.csv # Clean previously generated test files
-adjust_file_permissions "$0"
-check_arguments "$@"
-check_file
-adjust_file_permissions "$INPUT_FILE"
-check_directories
-executable_verification
-
-measure_time data_exploration
-measure_time execute_program
-if [ "$CONSUMER_TYPE" = "all" ]; then
-    measure_time all_consumer_type
+adjust_file_permissions "$0" # Call the `adjust_file_permissions` function to check and adjust the permissions of the script itself (`$0`)
+check_arguments "$@" # Calls the `check_arguments` function to check the arguments passed to the script.
+check_file # Calls the `check_file` function to verify that the specified input file exists and is not empty.
+adjust_file_permissions "$INPUT_FILE" # Checks and adjusts the permissions of the input file (`$INPUT_FILE`) to ensure it is readable.
+check_directories # Calls the `check_directories` function to check and create the necessary directories
+executable_verification # Checks if the C compiled program exists. If this is not the case, the script starts compiling.
+measure_time data_exploration # Measures the time taken to run the `data_exploration` function, which analyzes the data and generates the necessary files.
+measure_time execute_program # Measures the time taken to execute the `execute_program` function, which launches the main program.
+if [ "$CONSUMER_TYPE" = "all" ]; then # If consumer type is "all", perform an additional function to handle this specific case.
+    measure_time all_consumer_type # Measures the time taken to execute the `all_consumer_type` function, which processes data for all consumers.
 fi
 
 rm -f tmp/*.csv # Clean temporary files
