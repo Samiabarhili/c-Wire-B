@@ -1,5 +1,5 @@
 # C-Wire - Gestionnaire de réseau électrique
-> Réalisé par Tiroumourougane Synthia, Achour Hajar et BARHILI Samia (Trinôme-MEF1-B)
+> Réalisé par Tiroumourougane Synthia, Achour Hajar et Barhili Samia (Trinôme-MEF1-B)
 
 ## Utilisation
 
