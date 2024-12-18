@@ -4,7 +4,7 @@
 # Help display
 for arg in "$@"; do # Cycle through all arguments passed to the script. The "$@" variable contains the list of arguments.
     if [ "$arg" == "-h" ]; then # Checks if one of the arguments is "-h", which indicates that the user is requesting help.
-        echo "Usage: $0 <file_csv> <type_station> <type_consumer> [id_central]"
+        echo "Use: $0 <file_csv> <type_station> <type_consumer> [id_central]"
         echo "Description: This script allows you to process energy consumption data."
         echo "Settings:"
         echo "  <file_csv>         : Path to the CSV file containing the data."
@@ -58,7 +58,7 @@ adjust_file_permissions() {
 # Function to check the passed arguments
 check_arguments() {
     if [ $# -lt 3 ]; then # If the number of arguments is less than 3
-        echo "Usage: $0 <file_csv> <type_station> <type_consumer> [id_central]"
+        echo "Use: $0 <file_csv> <type_station> <type_consumer> [id_central]"
         echo "Time: 0.0sec"
         exit 1 # Exits the script with an error code `1`.
     fi
