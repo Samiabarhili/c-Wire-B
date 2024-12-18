@@ -5,7 +5,8 @@
 
 1. Cloner le repository ou ouvrer un codespace
 2. Placer le fichier de données dans le dossier 'input/'
-3. Pour exécuter le programme, entrer cette commande :
+3. Ajouter les droits d'exécution : chmod +x c-wire.sh
+4. Pour exécuter le programme, entrer cette commande :
 
 ./c-wire.sh <fichier_csv> <type_station> <type_consommateur> [id_centrale]
 > ⚠ il faut au minimum 3 arguments pour exécuter correctement le programme : le chemin vers le fichier à traiter + les traitements souhaités.
