@@ -56,9 +56,9 @@ Le programme traite les données d'entrée via un script shell et génère des f
 - Bash (shell Unix) - [Documentation](https://howtoinstall.co/package/bash)
 - Gnuplot (génération de graphiques) - [Documentation](http://www.gnuplot.info/)
 
-Si Gnuplot n'est pas installé, entrez ces commandes dans le terminal :
-  sudo apt-get update
-  sudo apt-get install gnuplot -y
+> Si Gnuplot n'est pas installé, entrez ces commandes dans le terminal :
+  > - sudo apt-get update
+  > - sudo apt-get install gnuplot -y
 
 ## Bugs et limitations
   Les traitements peuvent être relativement longs en fonction de la taille des fichiers de données.
