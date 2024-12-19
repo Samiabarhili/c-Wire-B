@@ -2,7 +2,7 @@
 > Réalisé par Tiroumourougane Synthia, Achour Hajar et Barhili Samia (Trinôme-MEF1-B)
 
 ## Utilisation
-> Ce programme nécessite Gnuplot pour la génération des graphiques (Si vous ne le possédez pas, veuillez vous référez à la partie 'Prérequis technique')
+> Ce programme nécessite Gnuplot pour la génération des graphiques (Si vous ne le possédez pas, veuillez vous référer à la partie 'Prérequis technique')
 
 1. Cloner le repository ou ouvrer un codespace
 2. Placer le fichier de données dans le dossier 'input/'
