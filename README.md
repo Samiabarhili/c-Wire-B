@@ -2,7 +2,7 @@
 > Réalisé par Tiroumourougane Synthia, Achour Hajar et Barhili Samia (Trinôme-MEF1-B)
 
 ## Utilisation
-> Ce programme nécessite Gnuplot pour la génération des graphiques (Si vous ne le possédez pas, veuillez vous référer à la partie 'Prérequis technique')
+> Ce programme nécessite Gnuplot pour la génération des graphiques (Si vous ne le possédez pas, veuillez vous référer à la partie 'Prérequis techniques')
 
 1. Cloner le repository ou ouvrer un codespace
 2. Placer le fichier de données dans le dossier 'input/'
@@ -56,10 +56,9 @@ Le programme traite les données d'entrée via un script shell et génère des f
 - Bash (shell Unix) - [Documentation](https://howtoinstall.co/package/bash)
 - Gnuplot (génération de graphiques) - [Documentation](http://www.gnuplot.info/)
 
-Si Gnuplot n'est pas installé :
-```bash
-sudo apt-get update
-sudo apt-get install gnuplot -y
+Si Gnuplot n'est pas installé, entrez ces commandes dans le terminal :
+  sudo apt-get update
+  sudo apt-get install gnuplot -y
 
 ## Bugs et limitations
   Les traitements peuvent être relativement longs en fonction de la taille des fichiers de données.
