@@ -220,6 +220,103 @@ all_consumer_type() {
     echo "Processing completed. Results saved in $OUTPUT_FILE."
 }
 
+# Function to prepare data for graph generation
+prepare_data() {
+    INPUT_FILE="tests/lv_all.csv" # Define the input file path
+
+    # Check if the input file exists
+    if [ ! -f "$INPUT_FILE" ]; then
+        echo "Error: The file $INPUT_FILE does not exist."
+        exit 1 # Exit if the input file does not exist
+    fi
+
+    echo "Calculating and sorting surplus..."
+    # Skip the first line, calculate surplus, sort by surplus in descending order, and save to a temporary file
+    tail -n +2 "$INPUT_FILE" | awk -F":" '{print $0 ":" ($3-$2)}' | sort -t ":" -k4,4nr | cut -d":" -f1-3 > tmp/sorted_surplus_bonus.csv
+
+    # Select the 10 most and least loaded LV stations
+    head -n 10 "tmp/sorted_surplus_bonus.csv" > tmp/selected_bonus.csv
+    tail -n 10 "tmp/sorted_surplus_bonus.csv" >> tmp/selected_bonus.csv
+}
+
+# Function to generate a graph
+generate_graph() {
+    echo "Generating graph for the 10 most and least loaded LV stations..."
+    
+    # Prepare the data for graph generation
+    prepare_data
+
+    SELECTED_FILE="tmp/selected_bonus.csv" 
+    GRAPH_FILE="graphs/lv_all_minmax.png" 
+    TEMP_PARTS_FILE="tmp/lv_info_graph_with_parts.csv" 
+    
+    # Check if the selected file is not empty
+    if [ ! -s "$SELECTED_FILE" ]; then
+        echo "Error: CSV file '$SELECTED_FILE' is empty or invalid."
+        exit 1 
+    fi
+
+    # Calculate green and red parts for the graph
+    while IFS=':' read -r id capacity conso_totale; do
+        if (( conso_totale <= capacity )); then 
+            green_part=$conso_totale # If consumption is less than or equal to capacity, set green part to consumption
+            red_part=0 # No overload
+        else
+            green_part=$capacity # If consumption exceeds capacity, set green part to capacity
+            red_part=$(( conso_totale - capacity )) # Calculate the overload
+        fi
+
+        # Save the calculated parts to a temporary file
+        echo "$id:$capacity:$conso_totale:$green_part:$red_part" >> "$TEMP_PARTS_FILE"
+    done < "$SELECTED_FILE"
+
+    # Generate Gnuplot script for graph visualization
+    gnuplot << EOF
+# General configuration
+set terminal pngcairo size 1600,1100 enhanced font "Open Sans, 20" background rgb "#e8e8e8"
+set output "$GRAPH_FILE"
+set datafile separator ":"
+
+# Legend style
+set key left top 
+set key font "Open Sans Bold, 18" 
+set key textcolor rgb "#333333" 
+set key box 
+
+# Grid and axes configuration
+set grid y linecolor rgb "#cccccc" lw 1
+set xtics rotate by 35 offset -1.5, -1.5 font "Open Sans, 16"
+set ytics font "Open Sans, 16" nomirror
+set xtics textcolor rgb "#333333"
+set ytics textcolor rgb "#333333"
+set border lc rgb "#666666" lw 2
+
+# Histogram style
+set style data histograms
+set style histogram rowstacked
+set boxwidth 0.8
+set style fill solid 1.0 border rgb "#333333"
+
+# Titles and labels
+set ylabel "Load (kWh)" font "Open Sans Bold, 22" textcolor rgb "#333333"
+set xlabel "LV Station ID" font "Open Sans Bold, 22" offset -1,-2 textcolor rgb "#333333"
+set title "Energy consumption\nper LV Station" font "Open Sans Bold, 25" textcolor rgb "#1a1a1a"
+
+# Plot with soft colors
+plot "$TEMP_PARTS_FILE" using 4:xtic(1) title "Capacity" lc rgb "#2ecc71" lw 3, \
+     '' using 5:xtic(1) title "Overload" lc rgb "#e74c3c" lw 3
+EOF
+
+    # Check if the image was generated
+    if [ -f "$GRAPH_FILE" ]; then
+        echo "Graph successfully generated: $GRAPH_FILE"
+    else
+        echo "Error: The graph was not generated."
+        exit 1
+    fi
+}
+
+
 # Function that measures and displays the execution time of a given command
 measure_time() {
     local start_time=$(date +%s.%N) # Start time
@@ -232,10 +329,12 @@ measure_time() {
     echo -e "Processing time for $1: ${formatted_duration}sec \n"
 }
 
+
 # Main script execution
 
-#Clean previously generated test files
-rm -f tests/*.csv 
+#Clean previously generated test and temporary files
+rm -f tests/*.csv tmp/*.csv graphs/*.png
+
 # Call the `adjust_file_permissions` function to check and adjust the permissions of the script itself (`$0`)
 adjust_file_permissions "$0" 
 # Calls the `check_arguments` function to check the arguments passed to the script.
@@ -254,6 +353,6 @@ measure_time data_exploration
 measure_time execute_program 
 if [ "$CONSUMER_TYPE" = "all" ]; then # If consumer type is "all", perform an additional function to handle this specific case.
     measure_time all_consumer_type # Measures the time taken to execute the `all_consumer_type` function, which processes data for all consumers.
+    # Generate the graph for the 10 most and least loaded LV stations
+    measure_time generate_graph
 fi
-
-rm -f tmp/*.csv # Clean temporary files
