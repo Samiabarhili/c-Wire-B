@@ -222,8 +222,12 @@ all_consumer_type() {
 
 # Function to prepare data for graph generation
 prepare_data() {
-    INPUT_FILE="tests/lv_all.csv" # Define the input file path
-
+    # Define the input file path
+    if [ "$CENTRAL_ID" != "[^-]+" ]; then
+        INPUT_FILE="tests/lv_all_${CENTRAL_ID}.csv"
+    else
+        INPUT_FILE="tests/lv_all.csv"
+    fi
     # Check if the input file exists
     if [ ! -f "$INPUT_FILE" ]; then
         echo "Error: The file $INPUT_FILE does not exist."
