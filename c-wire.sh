@@ -337,7 +337,7 @@ measure_time() {
 # Main script execution
 
 #Clean previously generated test and temporary files
-rm -f tests/*.csv tmp/*.csv graphs/*.png
+rm -f tmp/*.csv graphs/*.png
 
 # Call the `adjust_file_permissions` function to check and adjust the permissions of the script itself (`$0`)
 adjust_file_permissions "$0" 
